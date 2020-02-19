@@ -1,0 +1,80 @@
+<script src='gmt.js'></script>
+<style>*{margin: 0;}</style>
+<div id='myDiv' style="height: 600; width: 800;"></div>
+<script>
+
+const COLOR = {
+    BG: Gmt.rgb(0, 0, 0),
+    ALIVE: Gmt.rgb(0, 0, 150),
+    VISITED: Gmt.rgb(0, 50, 0)
+};
+
+const CELL_SIZE = 5;
+const TABLE_W = 800/CELL_SIZE;
+const TABLE_H = 600/CELL_SIZE;
+const SPEED = 100;
+const INITIAL_ALIVE_CHANCE = 0.05;
+
+const cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(CELL_SIZE);
+
+let visited = new Gmt.Table2D(TABLE_W, TABLE_H, 0);
+let current = new Gmt.Table2D(TABLE_W, TABLE_H, 0);
+current.iter((x, y) => current.put(x, y, Gmt.chance(INITIAL_ALIVE_CHANCE) ? 1 : 0));
+
+setInterval(() => {
+    // background
+    cw.fill(COLOR.BG);   
+
+    // visited
+    visited.iter((x, y) => {
+        if(visited.get(x, y) == 1) {
+            cw.fillRect(new Gmt.Rectangle(x, y, 1, 1), COLOR.VISITED);
+        } 
+    }); 
+    
+    // alive
+    current.iter((x, y) => {
+        if(current.get(x, y) == 1) {
+            cw.fillRect(new Gmt.Rectangle(x, y, 1, 1), COLOR.ALIVE);
+        } 
+    }); 
+
+    // new generation
+    let newGen = new Gmt.Table2D(TABLE_W, TABLE_H, 0);
+    current.iter((x, y) => {
+
+        // count neighbours
+        let neighbours = 0;
+        [[-1, -1], [0, -1], [+1, -1],
+         [-1, 0],           [+1, 0],
+         [-1, +1], [0, +1], [+1, +1]].forEach(p => {
+            let px = x + p[0];
+            let py = y + p[1];
+            if(current.isInRange(px, py) && current.get(px, py) == 1) {
+                neighbours++;
+            }
+         });
+
+        // if alive
+        if(current.get(x, y) == 1) {
+            if(neighbours == 2 || neighbours == 3) {
+                newGen.put(x, y, 1);
+                visited.put(x, y, 1);
+            }
+        // if dead
+        } else {
+            if(neighbours >= 3) {
+                newGen.put(x, y, 1);
+                visited.put(x, y, 1);  
+            }
+        }
+        
+    });
+
+    // replace old gen
+    current = newGen;
+
+}, SPEED);
+
+
+</script>

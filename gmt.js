@@ -222,8 +222,27 @@ const Gmt = {
             return this.values[x][y];
         }
 
+        // wraps around x and y values if out of table range 
+        // getWrapped(x, y) {
+        //     x %= this.xSize;
+        //     x = x < 0 ? x + this.xSize : x;
+        //     x = x > this.xSize + 1 ? x - this.xSize : x; 
+        //     y %= this.ySize;
+        //     y = y < 0 ? y + this.ySize : y;
+        //     y = y > this.ySize + 1 ? y - this.ySize : y; 
+        //     return this.get(x, y);
+        // }
+
         put(x, y, value){
             this.values[x][y] = value;
+        }
+
+        iter(func) {
+            for(let x = 0; x < this.xSize; x++) {
+                for(let y = 0; y < this.ySize; y++) {
+                    func(x, y);
+                }
+            }
         }
 
         isInRange(x, y){
@@ -265,7 +284,14 @@ const Gmt = {
             x += this.xRel;
             y += this.yRel;
             this.values[x][y] = value;
+        }
 
+        iter(func) {
+            for(let x = 0; x < this.xSize; x++) {
+                for(let y = 0; y < this.ySize; y++) {
+                    func(x + this.xRel, y + this.yRel);
+                }
+            }
         }
 
         isInRange(x, y){
@@ -548,6 +574,7 @@ const Gmt = {
             return Gmt.Distance.circles(c1, c2) < 0;
         },
 
+        // true if the passed segments intersect
         segments(s1, s2) {
             return Gmt.Intersection.segments(s1, s2).intersect; 
         }
