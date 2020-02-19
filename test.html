@@ -1,0 +1,29 @@
+<script src='gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2).setOffset(40, 10); 
+var pline = new Gmt.PolyLine(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
+
+Gmt.echo(255, 10, (i) => {
+    cw.fill(Gmt.rgb(255 - i, 0, i));
+    cw.fillRect(new Gmt.Rectangle(i, i/2, 300, 200), Gmt.rgb(0, i, 255 - i));
+    cw.strokeRect(new Gmt.Rectangle(200 + i, i/4, 200, 260), Gmt.rgb(i, 255 - i, 0), 3 + i / 10);
+    cw.strokeSegment(new Gmt.Segment(10, 10, i, i),  Gmt.rgb(i, 0, 255 - i), 30 - i / 10);
+    cw.fillCircle(new Gmt.Circle(i + 100, i * 0.6, i * 0.7), Gmt.rgb(0, 255 - i, 255 - i), 10);
+    cw.strokeCircle(new Gmt.Circle(i, i * 0.75, i), Gmt.rgb(i, 255 - i, 255 - i), 10);
+    if(Gmt.chance(0.05)) pline.add(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
+    cw.strokePolyLine(pline, Gmt.rgba(i, i, i, 0.7), 5);
+});
+
+console.log(
+    Gmt.Intersection.segments(
+        new Gmt.Segment(0, 0, 5, 5), new Gmt.Segment(0, 5, 5, 0)
+    )
+);
+
+
+</script>
