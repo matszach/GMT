@@ -832,6 +832,10 @@ const Gmt = {
         rewind(){
            return this.time(0);
         }
+
+        reset(){
+            return this.volume(1).rate(1).rewind().pause();
+        }
     
         isOn(){     
             return this.audio.paused();
