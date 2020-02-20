@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.1
+ * @version 0.2
  */
 const Gmt = {
 
@@ -222,16 +222,13 @@ const Gmt = {
             return this.values[x][y];
         }
 
-        // wraps around x and y values if out of table range 
-        // getWrapped(x, y) {
-        //     x %= this.xSize;
-        //     x = x < 0 ? x + this.xSize : x;
-        //     x = x > this.xSize + 1 ? x - this.xSize : x; 
-        //     y %= this.ySize;
-        //     y = y < 0 ? y + this.ySize : y;
-        //     y = y > this.ySize + 1 ? y - this.ySize : y; 
-        //     return this.get(x, y);
-        // }
+        slice(x, y, width, height) {
+            let slice = new Gmt.Table2D(width, height);
+            this.iterSlice(x, y, width, height, (xi, yi, e) => {
+                slice.put(xi - x, yi - y, e);
+            });
+            return slice;
+        }
 
         put(x, y, value){
             this.values[x][y] = value;
@@ -240,10 +237,20 @@ const Gmt = {
         iter(func) {
             for(let x = 0; x < this.xSize; x++) {
                 for(let y = 0; y < this.ySize; y++) {
-                    func(x, y);
+                    func(x, y, this.get(x, y));
                 }
             }
         }
+
+        iterSlice(x, y, width, height, func) {
+            let maxX = x + width;
+            let maxY = y + height;
+            for(let xi = x; xi < maxX; xi++) {
+                for(let yi = y; yi < maxY; yi++) {
+                    func(xi, yi, this.get(xi, yi));
+                }
+            }
+        } 
 
         isInRange(x, y){
             return x >= 0 && x < this.xSize && y >= 0 && y < this.ySize;
@@ -254,53 +261,7 @@ const Gmt = {
     /**
      * 2D array wrapper class with relative cooridnate values
      */
-    RelativeTable2D : class {
-
-        constructor(xSize, ySize, defaultValue) {
-            this.xRel = 0;
-            this.yRel = 0;
-            this.xSize = xSize;
-            this.ySize = ySize;
-            this.values = Dst.get2DArray(xSize, ySize, defaultValue);
-        }
-
-        shiftBy(x, y){
-            this.xRel += x;
-            this.yRel += y;
-        }
-
-        shiftTo(x, y){
-            this.xRel = x;
-            this.yRel = y;
-        }
-
-        get(x, y){
-            x += this.xRel;
-            y += this.yRel;
-            return this.values[x][y];
-        }
-
-        put(x, y, value){
-            x += this.xRel;
-            y += this.yRel;
-            this.values[x][y] = value;
-        }
-
-        iter(func) {
-            for(let x = 0; x < this.xSize; x++) {
-                for(let y = 0; y < this.ySize; y++) {
-                    func(x + this.xRel, y + this.yRel);
-                }
-            }
-        }
-
-        isInRange(x, y){
-            x += this.xRel;
-            y += this.yRel;
-            return x >= 0 && x < this.xSize && y >= 0 && y < this.ySize;
-        }
-
-    },
+    
 
     /**
      * generates consecutive numbers in an arithmetic series

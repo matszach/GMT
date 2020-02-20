@@ -25,7 +25,12 @@ console.log(
     )
 );
 
-console.log(-120 % 100);
+var table = new Gmt.Table2D(10, 10);
+table.iter((x, y) => table.put(x, y, x + y));
+var slice = table.slice(2, 2, 3, 5);
+console.log(table, slice);
+
+table.iterSlice(2, 2, 2, 2, (x, y, e) => console.log(x, y, e));
 
 
 </script>
