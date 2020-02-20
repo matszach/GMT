@@ -218,10 +218,12 @@ const Gmt = {
             this.values = Gmt.array2D(xSize, ySize, defaultValue);
         }
 
+        // returns the the value at position
         get(x, y){
             return this.values[x][y];
         }
 
+        // returns a part of the table as a new Gmt.Table2D
         slice(x, y, width, height) {
             let slice = new Gmt.Table2D(width, height);
             this.iterSlice(x, y, width, height, (xi, yi, e) => {
@@ -230,18 +232,24 @@ const Gmt = {
             return slice;
         }
 
+        // puts the vlue at a postion an dreturns the table
         put(x, y, value){
             this.values[x][y] = value;
+            return this;
         }
 
+        // iterats over the table's fields and executes the func on each
+        // the function can be written as a lambda : (x, y, value) => {}
         iter(func) {
             for(let x = 0; x < this.xSize; x++) {
                 for(let y = 0; y < this.ySize; y++) {
                     func(x, y, this.get(x, y));
                 }
             }
+            return this;
         }
 
+        // iterates over a slice
         iterSlice(x, y, width, height, func) {
             let maxX = x + width;
             let maxY = y + height;
@@ -250,8 +258,10 @@ const Gmt = {
                     func(xi, yi, this.get(xi, yi));
                 }
             }
+            return this;
         } 
 
+        // checks if a position is within the table's range
         isInRange(x, y){
             return x >= 0 && x < this.xSize && y >= 0 && y < this.ySize;
         }
