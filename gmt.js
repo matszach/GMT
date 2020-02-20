@@ -232,7 +232,7 @@ const Gmt = {
             return slice;
         }
 
-        // puts the vlue at a postion an dreturns the table
+        // puts the vlue at a postion an dreturns the table 
         put(x, y, value){
             this.values[x][y] = value;
             return this;
@@ -267,12 +267,7 @@ const Gmt = {
         }
 
     },
-
-    /**
-     * 2D array wrapper class with relative cooridnate values
-     */
     
-
     /**
      * generates consecutive numbers in an arithmetic series
      */
@@ -776,6 +771,75 @@ const Gmt = {
     // red, green, blue, alpha
     rgba(r, g, b, a) {
         return `rgba(${r}, ${g}, ${b}, ${a})`;
+    },
+
+    /**
+     * ===== ===== ===== ===== AUDIO ===== ===== ===== =====
+     */
+    AudioWrapper : class {
+
+        constructor(fileUrl){
+            this.audio = new Audio(fileUrl);
+        }
+    
+        play(){
+            this.audio.play();
+            return this;
+        }
+
+        volume(vol) {
+            this.audio.volume = Gmt.clamp(vol, 0, 1);
+            return this;
+        }
+
+        volumeEaseTo(vol, duration) {
+            let a = this.audio;
+            let dv = (Gmt.clamp(vol, 0, 1) - a.volume) / 10;
+            Gmt.echo(10, duration/10, () => a.volume += dv);
+            return this;
+        }
+
+        rate(rate) {
+            if(rate < 0) {
+                return this.pause();
+            }
+            this.audio.playbackRate = rate;
+            return this;
+        }
+
+        rateEaseTo(rate, duration) {
+            let a = this.audio;
+            let dr = (rate - a.playbackRate) / 10;
+            Gmt.echo(10, duration/10, () => {
+                if (a.playbackRate + dr <= 0) {
+                    return;
+                }
+                a.playbackRate += dr;       
+            });
+            return this;
+        }
+    
+        pause(){
+            this.audio.pause();
+            return this;
+        }
+    
+        time(time){
+            this.audio.currentTime = time;
+            return this;
+        }
+
+        rewind(){
+           return this.time(0);
+        }
+    
+        isOn(){     
+            return this.audio.paused();
+        }
+
+        getDuration() {
+            return this.audio.duration;
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-<script src='gmt.js'></script>
+<script src='./../gmt.js'></script>
 <style>*{margin: 0;}</style>
 
 <div id='myDiv' style="height: 100%; width: 100%;"></div>
@@ -31,6 +31,14 @@ var slice = table.slice(2, 2, 3, 5);
 console.log(table, slice);
 
 table.iterSlice(2, 2, 2, 2, (x, y, e) => console.log(x, y, e));
+
+
+var aw = new Gmt.AudioWrapper('s-ooze.mp3');
+console.log(aw, aw.getDuration());
+setTimeout(() => aw.play().volumeEaseTo(0, 8000).rateEaseTo(0.1, 8000), 2000);
+setTimeout(() => aw.pause(), 10000);
+
+
 
 
 </script>
