@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.4
+ * @version 0.5
  */
 const Gmt = {
 
@@ -105,6 +105,24 @@ const Gmt = {
      */
     between(num, min, max) {
         return num >= min && num <= max;
+    },
+
+    /**
+     * Current value approaches target value at a rate of step
+     * This returss the next value in the series
+     * @param {Number} current 
+     * @param {Number} target 
+     * @param {Number} step 
+     */
+    ease(current, target, step) {
+        step = step || 1;
+        if(Math.abs(current - target) <= step) {
+            return target;
+        } else if (current > target) {
+            return current - step;
+        } else {
+            return current + step;
+        }
     },
 
     /**
