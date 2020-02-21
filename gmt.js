@@ -88,17 +88,6 @@ const Gmt = {
     },
 
     /**
-     * Calls a function a certain number of times
-     * @param {Number} iterations - number of times the passed function is called
-     * @param {Function} func - the function to be looped, can take in a parameter i - the iteration index
-     */
-    times(iterations, func) {
-        for(let i = 0; i < iterations; i++) {
-            func(i);
-        }
-    },
-
-    /**
      * Clamps value between min and max
      * @param {Number} num - original value
      * @param {Number} min - value's bottom boundary
@@ -501,15 +490,15 @@ const Gmt = {
             return new Gmt.Vertex(this.x, this.y);
         }
 
-        area() {
+        getArea() {
             return Gmt.PI * Gmt.PI * this.radius;
         }
 
-        circumference() {
+        getCircumference() {
             return 2 * Gmt.PI * this.radius;
         }
 
-        diamater() {
+        getDiamater() {
             return 2 * this.radius;
         }
     },
@@ -540,15 +529,15 @@ const Gmt = {
             return new Gmt.Vertex(this.x + this.width/2, this.y + this.height/2);
         }
 
-        area() {
+        getArea() {
             return this.width * this.height;
         }
 
-        circumference() {
+        getCircumference() {
             return 2 * (this.width + this.height);
         }
 
-        diagonal() {
+        getDiagonal() {
             return 2 * this.radius;
         }
     },
@@ -771,7 +760,7 @@ const Gmt = {
 
         // sets up fill parameters
         setFillStyle(color) {
-            this.context.fillStyle = Gmt.nullish(color, 'black');
+            this.context.fillStyle = color || 'black';
         }
 
         // sets up stroke parameters
@@ -869,6 +858,19 @@ const Gmt = {
                              circle.y * this.unit + this.offsetY, 
                              circle.radius, 0, Gmt.PI * 2);
             this.context.stroke();
+        }
+
+        // writes text 
+        write(content, x, y, color, size, font) {
+            this.setFillStyle(color);
+            size = size || 12;      // default size
+            font = font || 'Arial'; // default font
+            this.context.font = `${parseInt(size * this.unit)}px ${font}`;
+            this.context.fillText(
+                content, 
+                x * this.unit + this.offsetX,
+                y * this.unit + this.offsetY
+            );
         }
 
         // draws a tileset tile on canvas
