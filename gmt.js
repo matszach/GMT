@@ -118,13 +118,25 @@ const Gmt = {
         return num >= min && num <= max;
     },
 
-    // easy iteration functions
+    /**
+     * Easy 1D iteration
+     * eg: Gmt.iter1D(10, (x, y) => {});
+     * @param {Number} xSize 
+     * @param {Function} func 
+     */
     iter1D(xSize, func) {
         for(let x = 0; x < xSize; x++){
             func(x);
         }
     },
 
+    /**
+     * Easy 2D iteration
+     * eg: Gmt.iter2D(10, 10, (x, y) => {});
+     * @param {Number} xSize 
+     * @param {Number} ySize 
+     * @param {Function} func 
+     */
     iter2D(xSize, ySize, func) {
         for(let x = 0; x < xSize; x++){
             for(let y = 0; y < ySize; y++){
@@ -133,6 +145,14 @@ const Gmt = {
         }
     },
 
+    /**
+     * Easy 3D iteration
+     * eg: Gmt.iter3D(10, 10, 10, (x, y) => {});
+     * @param {Number} xSize 
+     * @param {Number} ySize 
+     * @param {Number} zSize 
+     * @param {Function} func 
+     */
     iter3D(xSize, ySize, zSize, func) {
         for(let x = 0; x < xSize; x++){
             for(let y = 0; y < ySize; y++){
@@ -143,6 +163,15 @@ const Gmt = {
         }
     },
 
+    /**
+     * Easy 4D iteration
+     * eg: Gmt.iter4D(10, 10, 10, 10, (x, y) => {});
+     * @param {Number} xSize 
+     * @param {Number} ySize 
+     * @param {Number} zSize 
+     * @param {Number} wSize 
+     * @param {Function} func 
+     */
     iter4D(xSize, ySize, zSize, wSize, func) {
         for(let x = 0; x < xSize; x++){
             for(let y = 0; y < ySize; y++){
@@ -155,7 +184,6 @@ const Gmt = {
         }
     },
     
-
 
     /**
      * ===== ===== ===== ===== DATA STRUCTURES ===== ===== ===== =====
