@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.3
+ * @version 0.4
  */
 const Gmt = {
 
@@ -117,6 +117,44 @@ const Gmt = {
     between(num, min, max) {
         return num >= min && num <= max;
     },
+
+    // easy iteration functions
+    iter1D(xSize, func) {
+        for(let x = 0; x < xSize; x++){
+            func(x);
+        }
+    },
+
+    iter2D(xSize, ySize, func) {
+        for(let x = 0; x < xSize; x++){
+            for(let y = 0; y < ySize; y++){
+                func(x, y);
+            }
+        }
+    },
+
+    iter3D(xSize, ySize, zSize, func) {
+        for(let x = 0; x < xSize; x++){
+            for(let y = 0; y < ySize; y++){
+                for(let z = 0; z < zSize; z++){
+                    func(x, y, z);
+                }
+            }
+        }
+    },
+
+    iter4D(xSize, ySize, zSize, wSize, func) {
+        for(let x = 0; x < xSize; x++){
+            for(let y = 0; y < ySize; y++){
+                for(let z = 0; z < zSize; z++){
+                    for(let w = 0; w < wSize; w++){
+                        func(x, y, z, w);
+                    }
+                }
+            }
+        }
+    },
+    
 
 
     /**
@@ -596,12 +634,25 @@ const Gmt = {
         Gmt.times(iterations, (i) => setTimeout(func, delay * i, i));
     },
 
+    // pseudo threading, interval wrapper
+    Thread : {
+
+        start(delay, func, ...args) {
+            return setInterval(func, delay, args);
+        },
+    
+        close(interval) {
+            clearInterval(interval);
+            return interval;
+        }
+    },
+    
     /**
      * Can be used as a parent class (extended) for any in game entity
      */
     Agent : class {
 
-        constructor(intervalTimer) {
+        constructor(intervalTimer, act) {
             this.interval = null;
             this.intervalTimer = intervalTimer;
         }
@@ -613,11 +664,13 @@ const Gmt = {
         start() {
             let agent = this;
             this.interval = setInterval(() => agent.act(), this.intervalTimer);
+            return this;
         }
 
         stop() {
             clearInterval(this.interval);
             this.interval = null;
+            return this;
         }
 
         isActive() {
@@ -630,6 +683,35 @@ const Gmt = {
     /**
      * ===== ===== ===== ===== CANVAS UTILS ===== ===== ===== =====
      */
+
+    TileSet : class {
+
+        Tile = class {
+            constructor(imageReference, x, y, width, height) {
+                this.img = imageReference;
+                this.boudingRect = new Gmt.Rectangle(x, y, width, height);
+            }
+        }
+
+        constructor(fileUrl, tileSizeX, tileSizeY, borderSize) {
+            this.img = new Image();
+            this.img.src = fileUrl;
+            this.xSize = tileSizeX;
+            this.ySize = tileSizeY;
+            this.borderSize = Gmt.nullish(borderSize, 1);
+        }
+
+        get(x, y) {
+            return new this.Tile(
+                this.img,
+                x * (this.xSize + this.borderSize),
+                y * (this.ySize + this.borderSize),
+                this.xSize,
+                this.ySize
+            );
+        }
+
+    },
 
     CanvasWrapper : class {
 
@@ -761,6 +843,37 @@ const Gmt = {
             this.context.stroke();
         }
 
+        // draws a tileset tile on canvas
+        drawTile(tile, targetRect, rotation, alpha) {
+
+            // context settings changes
+            this.context.save();
+            this.context.globalAlpha = Gmt.nullish(alpha, 1);
+            this.context.translate(
+                targetRect.x * this.unit + this.offsetX,
+                targetRect.y * this.unit + this.offsetY,
+            ); 
+            this.context.rotate(Gmt.nullish(rotation, 0));
+
+            // drawing proper
+            this.context.drawImage(
+                tile.img,               
+                tile.boudingRect.x,                 
+                tile.boudingRect.y,
+                tile.boudingRect.width, 
+                tile.boudingRect.height,
+                - targetRect.width/2 * this.unit,
+                - targetRect.height/2 * this.unit,
+                targetRect.width * this.unit,
+                targetRect.height * this.unit
+            );
+
+            // context setting restore
+            this.context.restore();
+
+        }
+
+
     },
 
     // red, green, blue
@@ -779,6 +892,7 @@ const Gmt = {
     AudioWrapper : class {
 
         constructor(fileUrl){
+            this.src = fileUrl;
             this.audio = new Audio(fileUrl);
         }
     
@@ -836,6 +950,12 @@ const Gmt = {
         reset(){
             return this.volume(1).rate(1).rewind().pause();
         }
+
+        source(src) {
+            this.src = src;
+            this.audio = new Audio(src);
+            return this;
+        }
     
         isOn(){     
             return this.audio.paused();
@@ -844,6 +964,7 @@ const Gmt = {
         getDuration() {
             return this.audio.duration;
         }
+
     }
 
 }

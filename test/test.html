@@ -5,38 +5,66 @@
 
 <script>
 
-var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2).setOffset(40, 10); 
-var pline = new Gmt.PolyLine(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
+// var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2).setOffset(40, 10); 
 
-Gmt.echo(255, 10, (i) => {
-    cw.fill(Gmt.rgb(255 - i, 0, i));
-    cw.fillRect(new Gmt.Rectangle(i, i/2, 300, 200), Gmt.rgb(0, i, 255 - i));
-    cw.strokeRect(new Gmt.Rectangle(200 + i, i/4, 200, 260), Gmt.rgb(i, 255 - i, 0), 3 + i / 10);
-    cw.strokeSegment(new Gmt.Segment(10, 10, i, i),  Gmt.rgb(i, 0, 255 - i), 30 - i / 10);
-    cw.fillCircle(new Gmt.Circle(i + 100, i * 0.6, i * 0.7), Gmt.rgb(0, 255 - i, 255 - i), 10);
-    cw.strokeCircle(new Gmt.Circle(i, i * 0.75, i), Gmt.rgb(i, 255 - i, 255 - i), 10);
-    if(Gmt.chance(0.05)) pline.add(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
-    cw.strokePolyLine(pline, Gmt.rgba(i, i, i, 0.7), 5);
-});
+// var pline = new Gmt.PolyLine(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
 
-console.log(
-    Gmt.Intersection.segments(
-        new Gmt.Segment(0, 0, 5, 5), new Gmt.Segment(0, 5, 5, 0)
-    )
-);
+// Gmt.echo(255, 10, (i) => {
+//     cw.fill(Gmt.rgb(255 - i, 0, i));
+//     cw.fillRect(new Gmt.Rectangle(i, i/2, 300, 200), Gmt.rgb(0, i, 255 - i));
+//     cw.strokeRect(new Gmt.Rectangle(200 + i, i/4, 200, 260), Gmt.rgb(i, 255 - i, 0), 3 + i / 10);
+//     cw.strokeSegment(new Gmt.Segment(10, 10, i, i),  Gmt.rgb(i, 0, 255 - i), 30 - i / 10);
+//     cw.fillCircle(new Gmt.Circle(i + 100, i * 0.6, i * 0.7), Gmt.rgb(0, 255 - i, 255 - i), 10);
+//     cw.strokeCircle(new Gmt.Circle(i, i * 0.75, i), Gmt.rgb(i, 255 - i, 255 - i), 10);
+//     if(Gmt.chance(0.05)) pline.add(Gmt.randInt(0, 600), Gmt.randInt(0, 300));
+//     cw.strokePolyLine(pline, Gmt.rgba(i, i, i, 0.7), 5);
+// });
 
-var table = new Gmt.Table2D(10, 10);
-table.iter((x, y) => table.put(x, y, x + y));
-var slice = table.slice(2, 2, 3, 5);
-console.log(table, slice);
+// console.log(
+//     Gmt.Intersection.segments(
+//         new Gmt.Segment(0, 0, 5, 5), new Gmt.Segment(0, 5, 5, 0)
+//     )
+// );
 
-table.iterSlice(2, 2, 2, 2, (x, y, e) => console.log(x, y, e));
+// var table = new Gmt.Table2D(10, 10);
+// table.iter((x, y) => table.put(x, y, x + y));
+// var slice = table.slice(2, 2, 3, 5);
+// console.log(table, slice);
+
+// table.iterSlice(2, 2, 2, 2, (x, y, e) => console.log(x, y, e));
 
 
-var aw = new Gmt.AudioWrapper('s-ooze.mp3');
-console.log(aw, aw.getDuration());
-setTimeout(() => aw.play().volumeEaseTo(0, 8000).rateEaseTo(0.1, 8000), 2000);
-setTimeout(() => aw.pause(), 10000);
+// var aw = new Gmt.AudioWrapper('s-ooze.mp3');
+// console.log(aw, aw.getDuration());
+// setTimeout(() => aw.play().volumeEaseTo(0, 8000).rateEaseTo(0.1, 8000), 2000);
+// setTimeout(() => aw.pause(), 10000);
+
+// var tileSet = new Gmt.TileSet('monsters.png', 64, 64, 4);
+
+// let i = 0;
+// Gmt.Thread.start(200, () => {
+//     i += 5;
+//     cw.fill(Gmt.rgb(0, 0, 0));
+//     cw.drawTile(
+//         tileSet.get(Gmt.randInt(0, 11), Gmt.randInt(0, 7)), 
+//         new Gmt.Rectangle(50 + i/100, 50 + i/50, 100 + i/20, 100 + i/10), 
+//         Gmt.PI * i/100,
+//         Gmt.random());
+// });
+
+// var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(0.75).setOffset(10, 10);
+// var tileSet = new Gmt.TileSet('monsters.png', 64, 64, 4);
+
+// Gmt.Thread.start(100, () => {
+//     Gmt.iter2D(150, 100, (x, y) => {
+//         cw.drawTile(
+//             tileSet.get(Gmt.randInt(0, 11), Gmt.randInt(0, 7)),
+//             new Gmt.Rectangle(x * 10, y * 10, 10, 10)
+//         )
+//     });
+// });
+
+var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2).setOffset(40, 10);
 
 
 
