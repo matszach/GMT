@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.5
+ * @version 0.6
  */
 const Gmt = {
 
@@ -431,6 +431,10 @@ const Gmt = {
             this.y += dy;
             return this;
         }
+
+        equals(otherVertex) {
+            return Gmt.Intersection(this, otherVertex);
+        }
     },
 
     // 2 connected Vertices
@@ -648,7 +652,6 @@ const Gmt = {
                 u: u
             };
         }
-
 
     },
 
@@ -1057,6 +1060,54 @@ const Gmt = {
 
         getDuration() {
             return this.audio.duration;
+        }
+
+    },
+
+    /**
+     * ===== ===== ===== ===== USER INPUT ===== ===== ===== =====
+     */
+
+    Input : {
+        
+        _keys : {},
+        _mouse : {
+
+        },
+
+        init() {
+            
+            // mouse listeners
+            document.onmousemove = (e) => {
+
+            };
+
+            document.onmousedown = (e) => {
+
+            };
+            document.onmouseup = document.onmousedown;
+
+            // key listeners
+            document.onkeydown = (e) => {
+                Gmt.Input._keys[e.code] = true;
+            };
+            document.onkeyup = (e) => {
+                Gmt.Input._keys[e.code] = false;
+            };
+
+        },
+
+        /**
+         * Returns true if characted of the specifie code has been pressed
+         * For keycode names:
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+         * @param {String} keycode 
+         */
+        key(code) {
+            if(code in this._keys) {
+                return this._keys[code];
+            }
+            return false;
         }
 
     }

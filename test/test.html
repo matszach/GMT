@@ -78,9 +78,11 @@
 // });
 
 
-// new Gmt.Loop(60, (loop) => {
-//     console.log(loop.getFrame(), loop.getDelay(), loop.getFPS());
-// }).start();
-
+Gmt.Input.init();
+new Gmt.Loop(60, (loop) => {
+    if(Gmt.Input.key('Space')) {
+        console.log('wubwubwub');
+    }
+}).start();
 
 </script>
