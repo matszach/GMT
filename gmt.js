@@ -1071,21 +1071,44 @@ const Gmt = {
     Input : {
         
         _keys : {},
-        _mouse : {
 
+        _mouse : {
+           posX: 0,
+           moveX: 0,
+           posY: 0,
+           moveY: 0,
+           left: false,
+           middle: false,
+           right: false,
         },
 
+        /**
+         * Initalizes Input listeners
+         */
         init() {
             
             // mouse listeners
             document.onmousemove = (e) => {
-
+                Gmt.Input._mouse.posX = e.x;
+                Gmt.Input._mouse.moveX = e.movementX;
+                Gmt.Input._mouse.posY = e.y;
+                Gmt.Input._mouse.moveY = e.movementY;
             };
 
             document.onmousedown = (e) => {
-
+                switch(e.button) {
+                    case 0: this._mouse.left = true; break;
+                    case 1: this._mouse.middle = true; break;
+                    case 2: this._mouse.right = true; break;
+                }
             };
-            document.onmouseup = document.onmousedown;
+            document.onmouseup = (e) => {
+                switch(e.button) {
+                    case 0: this._mouse.left = false; break;
+                    case 1: this._mouse.middle = false; break;
+                    case 2: this._mouse.right = false; break;
+                }
+            };
 
             // key listeners
             document.onkeydown = (e) => {
@@ -1095,6 +1118,8 @@ const Gmt = {
                 Gmt.Input._keys[e.code] = false;
             };
 
+            // disable context menu
+            document.oncontextmenu = () => {return false;};
         },
 
         /**
@@ -1108,6 +1133,41 @@ const Gmt = {
                 return this._keys[code];
             }
             return false;
+        },
+
+        // returns true if all of the keys specified are pressed
+        keys(...codes) {
+            for(let i = 0; i < codes.length; i++) {
+                if(!this.key(codes[i])) {
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        // returns mouse position in window vertex
+        mousePos() {
+            return {
+                x: this._mouse.posX,
+                y: this._mouse.posY
+            };
+        },
+
+        // returns mouse movement vector
+        mouseMove() {
+            return {
+                x: this._mouse.moveX,
+                y: this._mouse.moveY
+            };
+        },
+
+        // returns mouse button state
+        mouseButtons() {
+            return {
+                left: this._mouse.left,
+                middle: this._mouse.middle,
+                right: this._mouse.right
+            };
         }
 
     }
