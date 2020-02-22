@@ -55,7 +55,7 @@
 // var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(0.75).setOffset(10, 10);
 // var tileSet = new Gmt.TileSet('monsters.png', 64, 64, 4);
 
-// Gmt.Thread.start(100, () => {
+// Gmt.Interval.start(100, () => {
 //     Gmt.iter2D(150, 100, (x, y) => {
 //         cw.drawTile(
 //             tileSet.get(Gmt.randInt(0, 11), Gmt.randInt(0, 7)),
@@ -65,7 +65,7 @@
 // });
 
 // var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2);
-// Gmt.Thread.start(100, () => {
+// Gmt.Interval.start(100, () => {
 //     cw.fill(Gmt.rgb(0, 0, 0));
 //     Gmt.iter2D(150, 100, (x, y) => {
 //         cw.write(
@@ -77,6 +77,10 @@
 //     });
 // });
 
+
+// new Gmt.Loop(60, (loop) => {
+//     console.log(loop.getFrame(), loop.getDelay(), loop.getFPS());
+// }).start();
 
 
 </script>

@@ -669,11 +669,18 @@ const Gmt = {
         Gmt.times(iterations, (i) => setTimeout(func, delay * i, i));
     },
 
-    // pseudo threading, interval wrapper
-    Thread : {
+    /**
+     * Retursn current time in milliseconds
+     */
+    now() {
+        return new Date().getTime();
+    },
 
-        start(delay, func, ...args) {
-            return setInterval(func, delay, args);
+    // pseudo threading, interval launcher
+    Interval : {
+
+        start(delay, func, arg) {
+            return setInterval(func, delay, arg);
         },
     
         close(interval) {
@@ -681,6 +688,45 @@ const Gmt = {
             return interval;
         }
     },
+
+    Loop : class {
+
+        constructor(fps, func) {
+            this.fps = fps;
+            this.func = func;
+            this.interval = null;
+            this.frameCount = 0;
+            this.time = Gmt.now();
+        }
+
+        start() {
+            this.interval = Gmt.Interval.start(1000/this.fps, (loop) => {
+                loop.frameCount++;
+                loop.func(loop);
+                loop.time = Gmt.now();
+            }, this);
+            return this;
+        }
+
+        stop() {
+            Gmt.Interval.close(this.interval);
+            return this;
+        }
+
+        getFrame() {
+            return this.frameCount;
+        }
+
+        getDelay() {
+            return Gmt.now() - this.time; 
+        }
+
+        getFPS() {
+            return 1000/this.getDelay();
+        }
+
+    },
+
     
     /**
      * Can be used as a parent class (extended) for any in game entity
