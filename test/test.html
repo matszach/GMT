@@ -111,16 +111,47 @@
 //     cw.fillRect(r, Gmt.rgb(200, 0, 0));
 // }).start();
 
-var cw = new Gmt.CanvasWrapper('myDiv');
-new Gmt.Loop(60, loop => {
-    let i = loop.getFrame();
-    cw.fill(cw.linearGradient(
-        new Gmt.Vertex(0, 0),
-        new Gmt.Vertex(i, i),
-        0, Gmt.rgb(i % 255, 0, 0),
-        0.5, Gmt.rgb(0, i % 255, 0),
-        1, Gmt.rgb(0, 0, i % 255)
-    ));
-}).start();
+// var cw = new Gmt.CanvasWrapper('myDiv');
+// new Gmt.Loop(60, loop => {
+//     let i = loop.getFrame()/2;
+//     cw.fill(cw.linearGradient(
+//         new Gmt.Vertex(0, 0),
+//         new Gmt.Vertex(i, i),
+//         0, Gmt.rgb(i % 255, 0, 0),
+//         0.5, Gmt.rgb(0, i % 255, 0),
+//         1, Gmt.rgb(0, 0, i % 255)
+//     ));
+//     cw.fillCircle(
+//         new Gmt.Circle(i/10, i/10, 2 * i / 20),
+//         cw.radialGradient(
+//             new Gmt.Circle(i/8, i/8, 0),
+//             new Gmt.Circle(i/10, i/10, 2 * i / 20),
+//             0, cw.rgba(200, 0, 0, 0.5),
+//             1, cw.rgba(0, 0, 200, 0.5)
+//         )
+//     )
+// }).start();
+
+// var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(20);
+// var pg = new Gmt.Polygon(5, 5).add(10, 11).add(32, 12).add(12, 32);
+// let black = cw.rgb(0, 0, 0);
+// let grad1 = cw.linearGradient(
+//         new Gmt.Vertex(0, 0),
+//         new Gmt.Vertex(100, 100),
+//         0, cw.rgb(150, 0, 0),
+//         1, cw.rgb(0, 0, 150)
+//     );
+// let grad2 = cw.linearGradient(
+//     new Gmt.Vertex(0, 0),
+//     new Gmt.Vertex(100, 100),
+//     0, cw.rgb(100, 0, 0),
+//     1, cw.rgb(0, 0, 100)
+// );
+// new Gmt.Loop(10, loop => {
+//     cw.fill(black);
+//     cw.fillPolygon(pg, grad1);
+//     cw.strokePolygon(pg, grad2);
+//     pg.move(0.01, 0.01);
+// }).start();
 
 </script>

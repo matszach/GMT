@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.6
+ * @version 0.7
  */
 const Gmt = {
 
@@ -471,6 +471,11 @@ const Gmt = {
             return this;
         }
 
+        move(x, y) {
+            this.vertices.forEach(e => e.move(x, y));
+            return this;
+        }
+
         toSegments() {
             let segments = [];
             for(let i = 0; i < this.vertices.length - 1; i++) {
@@ -481,12 +486,53 @@ const Gmt = {
             return segments;
         }
 
+        toVertices() {
+            return this.vertices;
+        }
+
         length() {
             let len = 0;
             this.toSegments().forEach(s => len += s.length());
             return len;
         }
     },
+    
+    Polygon : class {
+
+        constructor(x, y) {
+            this.body = new Gmt.PolyLine(x, y);
+        }
+
+        add(x, y) {
+            this.body.vertices.push(new Gmt.Vertex(x, y));
+            return this;
+        }
+
+        move(x, y) {
+            this.body.vertices.forEach(e => e.move(x, y));
+            return this;
+        }
+
+        toSegments() {
+            let segments = this.body.toSegments();
+            let vs = this.toVertices()[0];
+            let ve = this.toVertices()[this.toVertices().length - 1];
+            segments.push(new Gmt.Segment(vs.x, vs.y, ve.x, ve.y));
+            return segments;
+        }
+
+        toVertices() {
+            return this.body.toVertices();
+        }
+
+        length() {
+            let len = 0;
+            this.toSegments().forEach(s => len += s.length());
+            return len;
+        }
+    },
+
+
 
     // Has a center and a radius
     Circle : class {
@@ -911,16 +957,50 @@ const Gmt = {
         strokeSegments(segments, color, lineWidth) {
             this.setStrokeStyle(color, lineWidth);
             this.context.beginPath();
+            let sts = segments[0];
+            this.context.moveTo(
+                sts.start.x * this.unit + this.offsetX, 
+                sts.start.y * this.unit + this.offsetY
+            );
             segments.forEach(seg => {
-                this.context.moveTo(seg.start.x * this.unit + this.offsetX, seg.start.y * this.unit + this.offsetY);
-                this.context.lineTo(seg.end.x * this.unit + this.offsetX, seg.end.y * this.unit + this.offsetY);
+                this.context.lineTo(
+                    seg.end.x * this.unit + this.offsetX, 
+                    seg.end.y * this.unit + this.offsetY
+                );
             });
+            this.context.closePath();
             this.context.stroke();
         }
 
         // draws a Gmt.PolyLine
         strokePolyLine(pline, color, lineWidth) {
             this.strokeSegments(pline.toSegments(), color, lineWidth);
+        }
+
+        // draws a filled Gmt.Polygon
+        fillPolygon(polygon, color) {
+            this.setFillStyle(color);
+            let vertices = polygon.toVertices();
+            let vs = vertices[0];
+            this.context.beginPath();
+            this.context.moveTo(
+                vs.x * this.unit + this.offsetX,
+                vs.y * this.unit + this.offsetY,    
+            );
+            for(let i = 1; i < vertices.length; i++) {
+                let v = vertices[i];
+                this.context.lineTo(
+                    v.x * this.unit + this.offsetX,
+                    v.y * this.unit + this.offsetY,    
+                );
+            }
+            this.context.closePath();
+            this.context.fill();
+        }
+
+        // draws an empty Gmt.Polygon
+        strokePolygon(polygon, color, lineWidth) {
+            this.strokeSegments(polygon.toSegments(), color, lineWidth);
         }
 
         // draws a filled Gmt.Circle
@@ -933,7 +1013,7 @@ const Gmt = {
             this.context.fill();
         }
 
-        // draws a filled Gmt.Circle
+        // draws an empty Gmt.Circle
         strokeCircle(circle, color, lineWidth) {
             this.setStrokeStyle(color, lineWidth);
             this.context.beginPath();
@@ -985,32 +1065,89 @@ const Gmt = {
             this.context.restore();
 
         }
-
         
-        linearGradient(start, end, ...colorInfo) {
+        // ===== colors =====
+
+        /**
+         * Generate rgb color string
+         * @param {Number} r - red 0-255 
+         * @param {Number} g - green 0-255
+         * @param {Number} b - blue 0-255
+         */
+        rgb(r, g, b) {
+            return Gmt.rgb(r, g, b);
+        }
+
+        /**
+         * Generate rgb color string with alpha
+         * @param {Number} r - red 0-255 
+         * @param {Number} g - green 0-255
+         * @param {Number} b - blue 0-255
+         * @param {Number} a - alpha 0-1
+         */
+        rgba(r, g, b, a) {
+            return Gmt.rgba(r, g, b, a);
+        }
+        
+        /**
+         * Generate linear gradient 
+         * @param {Gmt.Vertex} startVertex - gradient start vertex
+         * @param {Gmt.Vertex} endVertex - gradient end vertex
+         * @param  {... Number, String(RGB/RGBA)} colorInfo -  1. step 0-1, 2. RGB, 1. ...
+         */
+        linearGradient(startVertex, endVertex, ...colorInfo) {
             let grd = this.context.createLinearGradient(
-                start.x * this.unit + this.offsetX, 
-                start.y * this.unit + this.offsetY, 
-                end.x * this.unit + this.offsetX, 
-                end.y * this.unit + this.offsetY
+                startVertex.x * this.unit + this.offsetX, 
+                startVertex.y * this.unit + this.offsetY, 
+                endVertex.x * this.unit + this.offsetX, 
+                endVertex.y * this.unit + this.offsetY
             );
             for(let i = 0; i < colorInfo.length;) {
-                grd.addColorStop(
-                    colorInfo[i++],
-                    colorInfo[i++]
-                );
+                grd.addColorStop(colorInfo[i++], colorInfo[i++]);
+            }
+            return grd;
+        }
+
+        /**
+         * Generate linear gradient 
+         * @param {Gmt.Circle} startCircle - gradient start circle
+         * @param {Gmt.Circle} endCircle - gradiendt end circle
+         * @param  {... Number, String(RGB/RGBA)} colorInfo -  1. step 0-1, 2. RGB, 1. ...
+         */
+        radialGradient(startCircle, endCircle, ...colorInfo) {
+            let grd = this.context.createRadialGradient(
+                startCircle.x * this.unit + this.offsetX, 
+                startCircle.y * this.unit + this.offsetY, 
+                startCircle.radius * this.unit,
+                endCircle.x * this.unit + this.offsetX, 
+                endCircle.y * this.unit + this.offsetY, 
+                endCircle.radius * this.unit
+            );
+            for(let i = 0; i < colorInfo.length;) {
+                grd.addColorStop(colorInfo[i++], colorInfo[i++]);
             }
             return grd;
         }
 
     },
 
-    // red, green, blue
+    /**
+     * Generate rgb color string
+     * @param {Number} r - red 0-255 
+     * @param {Number} g - green 0-255
+     * @param {Number} b - blue 0-255
+     */
     rgb(r, g, b) {
         return `rgb(${r}, ${g}, ${b})`;
     },
 
-    // red, green, blue, alpha
+    /**
+     * Generate rgb color string with alpha
+     * @param {Number} r - red 0-255 
+     * @param {Number} g - green 0-255
+     * @param {Number} b - blue 0-255
+     * @param {Number} a - alpha 0-1
+     */
     rgba(r, g, b, a) {
         return `rgba(${r}, ${g}, ${b}, ${a})`;
     },

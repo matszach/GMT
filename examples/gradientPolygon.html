@@ -1,0 +1,35 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(20);
+
+var pg = new Gmt.Polygon(5, 5).add(10, 11).add(32, 12).add(12, 32);
+
+let black = cw.rgb(0, 0, 0);
+
+let grad1 = cw.linearGradient(
+        new Gmt.Vertex(0, 0),
+        new Gmt.Vertex(100, 100),
+        0, cw.rgb(150, 0, 0),
+        1, cw.rgb(0, 0, 150)
+);
+
+let grad2 = cw.linearGradient(
+    new Gmt.Vertex(0, 0),
+    new Gmt.Vertex(100, 100),
+    0, cw.rgb(100, 0, 0),
+    1, cw.rgb(0, 0, 100)
+);
+
+new Gmt.Loop(10, loop => {
+    cw.fill(black);
+    cw.fillPolygon(pg, grad1);
+    cw.strokePolygon(pg, grad2);
+    pg.move(0.01, 0.01);
+}).start();
+
+</script>

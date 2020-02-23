@@ -1,0 +1,29 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+var cw = new Gmt.CanvasWrapper('myDiv');
+new Gmt.Loop(60, loop => {
+    let i = loop.getFrame()/2;
+    cw.fill(cw.linearGradient(
+        new Gmt.Vertex(0, 0),
+        new Gmt.Vertex(i, i),
+        0, Gmt.rgb(i % 255, 0, 0),
+        0.5, Gmt.rgb(0, i % 255, 0),
+        1, Gmt.rgb(0, 0, i % 255)
+    ));
+    cw.fillCircle(
+        new Gmt.Circle(i/10, i/10, 2 * i / 20),
+        cw.radialGradient(
+            new Gmt.Circle(i/8, i/8, 0),
+            new Gmt.Circle(i/10, i/10, 2 * i / 20),
+            0, cw.rgba(200, 0, 0, 0.5),
+            1, cw.rgba(0, 0, 200, 0.5)
+        )
+    )
+}).start();
+
+</script>
