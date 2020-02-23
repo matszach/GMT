@@ -1440,7 +1440,7 @@ const Gmt = {
                 Gmt.Input._keys[e.code] = false;
             };
 
-            // disable context menu
+            // disable context menu on right click
             target.oncontextmenu = () => {return false;};
         },
 
