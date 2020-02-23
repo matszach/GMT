@@ -804,12 +804,28 @@ const Gmt = {
         parent = null;
 
         constructor(parentID) {
-            this.initCanvas(parentID);
-            this.refit();
-
+            if(parentID) {
+                this.initCanvas(parentID);
+                this.refit();    
+            }
             this.unit = 1;      // relative size unit (a rectangle of width 10 with unit size of 5 -> 50px rectangle)
             this.offsetX = 0;   // offset from the left of any drawn content vertex with x = 10 with offsetX = 20 -> vertex drawn at 30px from left
             this.offsetY = 0;   // offset from the top ~
+        }
+
+        /**
+         * Returns a CanvasWrapper that references the same canvas 
+         * but can have its other properties changed
+         */
+        getSubWrapper() {
+           let sw = new Gmt.CanvasWrapper(); 
+           sw.canvas = this.canvas;
+           sw.context = this.context;
+           sw.parent = this.parent;
+           sw.unit = this.unit;
+           sw.offsetX = this.offsetX;
+           sw.offsetY = this.offsetY;
+           return sw;
         }
 
         // sets the unit size and return the canvas wrapper
@@ -970,6 +986,22 @@ const Gmt = {
 
         }
 
+        
+        linearGradient(start, end, ...colorInfo) {
+            let grd = this.context.createLinearGradient(
+                start.x * this.unit + this.offsetX, 
+                start.y * this.unit + this.offsetY, 
+                end.x * this.unit + this.offsetX, 
+                end.y * this.unit + this.offsetY
+            );
+            for(let i = 0; i < colorInfo.length;) {
+                grd.addColorStop(
+                    colorInfo[i++],
+                    colorInfo[i++]
+                );
+            }
+            return grd;
+        }
 
     },
 

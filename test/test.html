@@ -94,4 +94,33 @@
 //     console.log(Gmt.Input.mouseButtons());
 // }).start();
 
+
+
+// var cw = new Gmt.CanvasWrapper('myDiv');
+// var sw1 = cw.getSubWrapper().setUnitSize(2);
+// var sw2 = cw.getSubWrapper().setUnitSize(3);
+// var sw3 = cw.getSubWrapper().setUnitSize(4);
+
+// new Gmt.Loop(60, loop => {
+//     cw.fill(Gmt.rgb(0, 0, 0));
+//     let i = loop.getFrame();
+//     let r = new Gmt.Rectangle(i/10, i/10, 25, 25);
+//     sw3.fillRect(r, Gmt.rgb(50, 0, 0));
+//     sw2.fillRect(r, Gmt.rgb(100, 0, 0));
+//     sw1.fillRect(r, Gmt.rgb(150, 0, 0));
+//     cw.fillRect(r, Gmt.rgb(200, 0, 0));
+// }).start();
+
+var cw = new Gmt.CanvasWrapper('myDiv');
+new Gmt.Loop(60, loop => {
+    let i = loop.getFrame();
+    cw.fill(cw.linearGradient(
+        new Gmt.Vertex(0, 0),
+        new Gmt.Vertex(i, i),
+        0, Gmt.rgb(i % 255, 0, 0),
+        0.5, Gmt.rgb(0, i % 255, 0),
+        1, Gmt.rgb(0, 0, i % 255)
+    ));
+}).start();
+
 </script>
