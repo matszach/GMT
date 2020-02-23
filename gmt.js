@@ -70,18 +70,9 @@ const Gmt = {
      */
 
     /**
-     * Returns the value, unless it's a null. Then the default is returned
-     * @param {Any} value - value returned if not null
-     * @param {Any} def - default value
-     */
-    nullish(value, def) {
-        return value ? value : def;
-    },
-
-    /**
      * Returns the value, unless it's a null. Then the default is generated
      * @param {Any} value - value returned if not null
-     * @param {Function} def - default value generator
+     * @param {Function} def - default value generator function
      */
     nullishf(value, def) {
         return value ? value : def();
@@ -203,7 +194,7 @@ const Gmt = {
      * @param {Number} step - difference between consecutive values
      */
     range(min, max, step){
-        step = Gmt.nullish(step, 1);
+        step = step || 1;
         let arr = [];
         while(min <= max){
             arr.push(min);
@@ -238,7 +229,7 @@ const Gmt = {
     RingArray : class {
 
         constructor(baseArray) {
-            this.values = Gmt.nullish(baseArray, []);
+            this.values = baseArray || []
             this.i = 0;
         }
 
@@ -264,7 +255,7 @@ const Gmt = {
 
         // Moves the ring to it's next position and returns it's value
         next(step) {
-            step = Gmt.nullish(step, 1);
+            step = step || 1;
             this.i += step;
             this.i = this.i < this.values.length ? this.i : (0 + this.i - this.values.length);
             return this.get();
@@ -272,7 +263,7 @@ const Gmt = {
 
         // Moves the ring to it's previous position and returns it's value
         prev(step) {
-            step = Gmt.nullish(step, 1);
+            step = step || 1;
             this.i -= step;
             this.i = this.i >= 0 ? this.i : (this.values.length + this.i);
             return this.get();
@@ -347,8 +338,8 @@ const Gmt = {
     Counter : class {
 
         constructor(baseValue, step){
-            this.value = Gmt.nullish(baseValue, 0);
-            this.step = Gmt.nullish(step, 1);
+            this.value = baseValue || 0;
+            this.step = step || 0
             this.value -= this.step;
         }
 
@@ -389,7 +380,7 @@ const Gmt = {
     polarToCartesian(r, phi) {
         return {
             x: r * Math.cos(phi),
-            y: r * Math.sin(phi),
+            y: r * Math.sin(phi)
         };
     },
 
@@ -490,6 +481,12 @@ const Gmt = {
             return this.vertices;
         }
 
+        toPolygon() {
+            let pg = new Gmt.Polygon();
+            pg.body = this;
+            return pg;
+        }
+
         length() {
             let len = 0;
             this.toSegments().forEach(s => len += s.length());
@@ -532,8 +529,6 @@ const Gmt = {
         }
     },
 
-
-
     // Has a center and a radius
     Circle : class {
 
@@ -552,6 +547,10 @@ const Gmt = {
         scale(scale) {
             this.radius *= scale;
             return this;
+        }
+
+        toPolygon(vertices, rotation) {
+            return Gmt.polygonInCircle(this, vertices, rotation);
         }
 
         getCenter() {
@@ -609,6 +608,55 @@ const Gmt = {
             return 2 * this.radius;
         }
     },
+
+    /**
+     * Creates a polyline from a list of coorinates
+     * @param  {...Number} coordinates 
+     */
+    polyLineFromList(...coordinates) {
+        if(coordinates.length % 2 != 0) {
+            throw "Coordinate list of odd length.";
+        }
+        let pl = new Gmt.PolyLine();
+        for(let i = 0; i < coordinates.length;) {
+            pl.add(coordinates[i++], coordinates[i++]);
+        }
+        return pl;
+    },
+
+    /**
+     * Creates a polygon from a list of coorinates
+     * @param  {...Number} coordinates 
+     */
+    polygonFromList(...coordinates) {
+        if(coordinates.length % 2 != 0) {
+            throw "Coordinate list of odd length.";
+        }
+        let pg = new Gmt.Polygon();
+        for(let i = 0; i < coordinates.length;) {
+            pg.add(coordinates[i++], coordinates[i++]);
+        }
+        return pg;
+    },
+
+    /**
+     * Returns a polygon inscibed in a circle
+     * @param {Gmt.Circle} circle - circle in which the polygon is inscribed
+     * @param {Number} nofVertices - describes number of desired verices (default = 4)
+     * @param {Radian} rotation - describes position of the polygon's first vertex (default = 0)
+     */
+    polygonInCircle(circle, nofVertices, rotation) {
+        nofVertices = nofVertices || 4;
+        rotation = rotation || 0;
+        let angle = 2 * Gmt.PI / nofVertices;
+        let pg = new Gmt.Polygon();
+        for(let i = 0; i < nofVertices; i++) {
+            let crd = Gmt.polarToCartesian(circle.radius, rotation + angle * i);
+            pg.add(circle.x + crd.x, circle.y + crd.y);
+        }   
+        return pg;
+    },
+
 
     /**
      * Distance calculator
@@ -828,7 +876,7 @@ const Gmt = {
             this.img.src = fileUrl;
             this.xSize = tileSizeX;
             this.ySize = tileSizeY;
-            this.borderSize = Gmt.nullish(borderSize, 1);
+            this.borderSize = borderSize || 1
         }
 
         get(x, y) {
@@ -894,8 +942,8 @@ const Gmt = {
 
         // sets up stroke parameters
         setStrokeStyle(color, lineWidth) {
-            this.context.strokeStyle = Gmt.nullish(color, 'black');
-            this.context.lineWidth = Gmt.nullish(lineWidth, 1) * this.unit;
+            this.context.strokeStyle = color || 'black'
+            this.context.lineWidth = (lineWidth || 1) * this.unit;
         }
 
         // initiates canvas a canvas that resizes to fit it's parent div
@@ -1009,7 +1057,7 @@ const Gmt = {
             this.context.beginPath();
             this.context.arc(circle.x * this.unit + this.offsetX, 
                              circle.y * this.unit + this.offsetY, 
-                             circle.radius, 0, Gmt.PI * 2);
+                             circle.radius * this.unit, 0, Gmt.PI * 2);
             this.context.fill();
         }
 
@@ -1019,7 +1067,7 @@ const Gmt = {
             this.context.beginPath();
             this.context.arc(circle.x * this.unit + this.offsetX, 
                              circle.y * this.unit + this.offsetY, 
-                             circle.radius, 0, Gmt.PI * 2);
+                             circle.radius * this.unit, 0, Gmt.PI * 2);
             this.context.stroke();
         }
 
@@ -1041,12 +1089,12 @@ const Gmt = {
 
             // context settings changes
             this.context.save();
-            this.context.globalAlpha = Gmt.nullish(alpha, 1);
+            this.context.globalAlpha = alpha || 1
             this.context.translate(
                 targetRect.x * this.unit + this.offsetX,
                 targetRect.y * this.unit + this.offsetY,
             ); 
-            this.context.rotate(Gmt.nullish(rotation, 0));
+            this.context.rotate(rotation || 0);
 
             // drawing proper
             this.context.drawImage(
