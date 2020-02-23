@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.7
+ * @version 0.8
  */
 const Gmt = {
 
@@ -423,8 +423,39 @@ const Gmt = {
             return this;
         }
 
+        place(x, y) {
+            this.x = x;
+            this.y = y;
+            return this;
+        }
+
+        /**
+         * Rotates the vertex against a pivot vertex
+         * @param {Gmt.Vertex} pivot 
+         * @param {Radian} angle 
+         */
+        rotate(pivot, angle) {
+            let r = this.distanceTo(pivot);
+            let pCrd = Gmt.cartesianToPolar(this.x - pivot.x, this.y - pivot.y);
+            let cCrd = Gmt.polarToCartesian(r, angle + pCrd.phi);
+            this.place(cCrd.x + pivot.x, cCrd.y + pivot.y);
+            return this;
+        }
+
+        toCircle(radius) {
+            return new Gmt.Circle(this.x, this.y, radius);
+        }
+
+        copy() {
+            return new Gmt.Vertex(this.x, this.y);
+        }
+
         equals(otherVertex) {
             return Gmt.Intersection(this, otherVertex);
+        }
+
+        distanceTo(otherVertex) {
+            return Gmt.Distance.vertices(this, otherVertex);
         }
     },
 
@@ -439,6 +470,12 @@ const Gmt = {
         move(dx, dy) {
             this.start.move(dx, dy);
             this.end.move(dx, dy);
+            return this;
+        }
+
+        rotate(pivot, angle) {
+            this.start.rotate(pivot, angle);
+            this.end.rotate(pivot, angle);
             return this;
         }
 
@@ -464,6 +501,11 @@ const Gmt = {
 
         move(x, y) {
             this.vertices.forEach(e => e.move(x, y));
+            return this;
+        }
+
+        rotate(pivot, angle) {
+            this.vertices.forEach(e => e.rotate(pivot, angle));
             return this;
         }
 
@@ -506,7 +548,12 @@ const Gmt = {
         }
 
         move(x, y) {
-            this.body.vertices.forEach(e => e.move(x, y));
+            this.body.move(x, y);
+            return this;
+        }
+
+        rotate(pivot, angle) {
+            this.body.rotate(pivot, angle);
             return this;
         }
 
@@ -522,7 +569,7 @@ const Gmt = {
             return this.body.toVertices();
         }
 
-        length() {
+        getCircumference() {
             let len = 0;
             this.toSegments().forEach(s => len += s.length());
             return len;
@@ -543,6 +590,14 @@ const Gmt = {
             this.y += dy;
             return this;
         } 
+
+        rotate(pivot, angle) {
+            let center = this.getCenter();
+            center.rotate(pivot, angle);
+            this.x = center.x;
+            this.y = center.y;
+            return this;
+        }
 
         scale(scale) {
             this.radius *= scale;
@@ -585,6 +640,14 @@ const Gmt = {
             this.y += dy;j
             return this;
         }
+
+        rotate(pivot, angle) {
+            let root = new Gmt.Vertex(this.x, this.y);
+            root.rotate(pivot, angle);
+            this.x = root.x;
+            this.y = root.y;
+            return this;
+        }
         
         scale(scale) {
             this.width *= scale;
@@ -598,6 +661,26 @@ const Gmt = {
 
         getArea() {
             return this.width * this.height;
+        }
+
+        toVertices() {
+            return [
+                new Gmt.Vertex(this.x, this.y),
+                new Gmt.Vertex(this.x, this.y + this.height),
+                new Gmt.Vertex(this.x + this.width, this.y),
+                new Gmt.Vertex(this.x + this.width, this.y + this.height)
+            ];
+        }
+
+        toPolygon(){
+            return new Gmt.Polygon(this.x, this.y)
+                .add(this.x, this.y + this.height)
+                .add(this.x + this.width, this.y)
+                .add(this.x + this.width, this.y + this.height);
+        }
+        
+        toSegments() {
+            return this.toPolygon().toSegments();
         }
 
         getCircumference() {
@@ -857,19 +940,18 @@ const Gmt = {
 
     },
 
-
     /**
-     * ===== ===== ===== ===== CANVAS UTILS ===== ===== ===== =====
+     * ===== ===== ===== ===== Image asset wrappers ===== ===== ===== =====
      */
 
-    TileSet : class {
-
-        Tile = class {
-            constructor(imageReference, x, y, width, height) {
-                this.img = imageReference;
-                this.boudingRect = new Gmt.Rectangle(x, y, width, height);
-            }
+    Tile : class {
+        constructor(imageReference, x, y, width, height) {
+            this.img = imageReference;
+            this.boudingRect = new Gmt.Rectangle(x, y, width, height);
         }
+    },
+
+    TileSet : class {
 
         constructor(fileUrl, tileSizeX, tileSizeY, borderSize) {
             this.img = new Image();
@@ -880,7 +962,7 @@ const Gmt = {
         }
 
         get(x, y) {
-            return new this.Tile(
+            return new Gmt.Tile(
                 this.img,
                 x * (this.xSize + this.borderSize),
                 y * (this.ySize + this.borderSize),
@@ -888,8 +970,24 @@ const Gmt = {
                 this.ySize
             );
         }
+    },
+
+    ImageWrapper : class {
+
+        constructor(fileUrl) {
+            this.img = new Image();
+            this.img.src = fileUrl;
+        }
+
+        slice(x, y, width, height) {
+            return new Gmt.Tile(this.img, x, y, width, height);
+        }
 
     },
+
+    /**
+     * ===== ===== ===== ===== CANVAS UTILS ===== ===== ===== =====
+     */
 
     CanvasWrapper : class {
 
@@ -1301,25 +1399,32 @@ const Gmt = {
 
         /**
          * Initalizes Input listeners
+         * @param {String(ID)} targetID - target of the input listeners (default = document)
          */
-        init() {
+        init(targetId) {
+            
+            // event listerens target
+            let target = targetId ? document.getElementById(targetId) : document;
+            if(!target) {
+                throw `Failure locating target element of ID \"${targetId}\".`;
+            }
             
             // mouse listeners
-            document.onmousemove = (e) => {
+            target.onmousemove = (e) => {
                 Gmt.Input._mouse.posX = e.x;
                 Gmt.Input._mouse.moveX = e.movementX;
                 Gmt.Input._mouse.posY = e.y;
                 Gmt.Input._mouse.moveY = e.movementY;
             };
 
-            document.onmousedown = (e) => {
+            target.onmousedown = (e) => {
                 switch(e.button) {
                     case 0: this._mouse.left = true; break;
                     case 1: this._mouse.middle = true; break;
                     case 2: this._mouse.right = true; break;
                 }
             };
-            document.onmouseup = (e) => {
+            target.onmouseup = (e) => {
                 switch(e.button) {
                     case 0: this._mouse.left = false; break;
                     case 1: this._mouse.middle = false; break;
@@ -1328,15 +1433,15 @@ const Gmt = {
             };
 
             // key listeners
-            document.onkeydown = (e) => {
+            target.onkeydown = (e) => {
                 Gmt.Input._keys[e.code] = true;
             };
-            document.onkeyup = (e) => {
+            target.onkeyup = (e) => {
                 Gmt.Input._keys[e.code] = false;
             };
 
             // disable context menu
-            document.oncontextmenu = () => {return false;};
+            target.oncontextmenu = () => {return false;};
         },
 
         /**

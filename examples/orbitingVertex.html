@@ -1,0 +1,22 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5);
+
+var v = new Gmt.Vertex(40, 40);
+var pivot = new Gmt.Vertex(50, 60);
+
+new Gmt.Loop(60, loop => {
+    let i = loop.getFrame();
+    cw.fill('black');
+    cw.fillCircle(v.toCircle(4), 'red');
+    cw.fillCircle(pivot.toCircle(7), 'blue');
+    v.rotate(pivot, Gmt.PI/200);
+}).start();
+
+
+</script>
