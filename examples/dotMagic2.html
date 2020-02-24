@@ -9,13 +9,14 @@
 
     let pivot = new Gmt.Vertex(150, 100);
     let dots = [];
-    Gmt.iter1D(2000, i =>{
+
+    Gmt.iter1D(2000, i => {
         dots.push({
             v: new Gmt.Vertex(Gmt.randFloat(0, 300), Gmt.randFloat(0, 200)),
             r: Gmt.randFloat(2, 10),
             c: Gmt.rgba(Gmt.randInt(0, 255), Gmt.randInt(0, 255), Gmt.randInt(0, 255), Gmt.random()),
             s: Gmt.PI / Gmt.randFloat(100, 500) * Gmt.randSign()
-        })
+        });
     });
 
     

@@ -369,6 +369,14 @@ const Gmt = {
     _RAD_TO_DEG_MOD :180 / Math.PI,
     _DEG_TO_RAD_MOD : Math.PI / 180,
 
+    /**
+     * Retuns n radians
+     * @param {Number} n - desired number of radiands 
+     */
+    rad(n) {
+        return Gmt.PI * n;
+    },
+
     // converts radians to degrees
     radToDeg(rad) {
         return rad * Gmt._RAD_TO_DEG_MOD;
@@ -485,6 +493,13 @@ const Gmt = {
             this.end.rotate(pivot, angle);
             return this;
         }
+        
+        copy() {
+            return new Gmt.Segment(
+                this.start.x, this.start.y,
+                this.end.x, this.end.y
+            );
+        }
 
         length() {
             return Gmt.Distance.vertices(this.start, this.end);
@@ -536,6 +551,12 @@ const Gmt = {
             return pg;
         }
 
+        copy() {
+            let pl = new Gmt.PolyLine();
+            this.vertices.forEach(v => pl.vertices.push(v.copy()));
+            return pl;
+        }
+
         length() {
             let len = 0;
             this.toSegments().forEach(s => len += s.length());
@@ -574,6 +595,12 @@ const Gmt = {
 
         toVertices() {
             return this.body.toVertices();
+        }
+
+        copy() {
+            let pg = new Gmt.Polygon();
+            pg.body = this.body.copy();
+            return pg;
         }
 
         getCircumference() {
@@ -630,6 +657,10 @@ const Gmt = {
         getDiamater() {
             return 2 * this.radius;
         }
+
+        copy() {
+            return new Gmt.Circle(this.x, this.y, this.radius);
+        }
     },
 
     // has a a position, width and height
@@ -644,7 +675,7 @@ const Gmt = {
 
         move(dx, dy) {
             this.x += dx;
-            this.y += dy;j
+            this.y += dy;
             return this;
         }
 
@@ -696,6 +727,10 @@ const Gmt = {
 
         getDiagonal() {
             return 2 * this.radius;
+        }
+
+        copy() {
+            return new Gmt.Rectangle(this.x, this.y, this.width, this.height);
         }
     },
 
@@ -835,6 +870,34 @@ const Gmt = {
                 t: t,
                 u: u
             };
+        },
+
+        /**
+         * Returns copy of a ray sliced to size by the edge segment 
+         * (if no collision has been detected then the original ray is retuned)
+         * @param {Gmt.Segment} ray - segment to slice 
+         * @param {Gmt.Segment} edge - segment to slice against
+         */
+        sliceRay(ray, edge) {
+            let info = Gmt.Intersection.segments(ray, edge);
+            if(info.intersect) {
+                ray = ray.copy();
+                ray.end = info.vertex;
+            } 
+            return ray;
+        },
+
+        /**
+         * Returns the rey segment, sliced against all segmets in edge array
+         * @param {Gmt.Segment} ray 
+         * @param {Array<Gmt.Segment>} edges 
+         */
+        castRay(ray, edges) {
+            ray = ray.copy();
+            edges.forEach(e => {
+                ray = Gmt.Intersection.sliceRay(ray, e);
+            });
+            return ray;
         }
 
     },
@@ -1009,6 +1072,18 @@ const Gmt = {
             this.unit = 1;      // relative size unit (a rectangle of width 10 with unit size of 5 -> 50px rectangle)
             this.offsetX = 0;   // offset from the left of any drawn content vertex with x = 10 with offsetX = 20 -> vertex drawn at 30px from left
             this.offsetY = 0;   // offset from the top ~
+        }
+
+        /**
+         * Returns a Gmt.Rectangle equal tothe current canvas area
+         */
+        getBoundingRect() {
+            return new Gmt.Rectangle(
+                - this.offsetX / this.unit,
+                - this.offsetY / this.unit,
+                this.canvas.width / this.unit,
+                this.canvas.height / this.unit
+            );
         }
 
         /**

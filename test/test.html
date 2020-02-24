@@ -5,11 +5,25 @@
 
 <script>
 
-    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2);
-    new Gmt.Loop(30, loop => {
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5).setOffset(0, 0);
+
+    let c1 = new Gmt.Circle(50, 50, 20);
+    let ray1 = new Gmt.Segment(10, 40, 80, 90);
+    
+
+
+    new Gmt.Loop(60, loop => {
         let i = loop.getFrame();
         cw.fill('black');
-    
+
+        let pg = c1.toPolygon(3, Gmt.rad(i/256));
+
+        cw.fillPolygon(pg, Gmt.rgba(200, 0, 0, 0.1));
+        cw.strokePolygon(pg, 'red', 1);
+
+        cw.strokeSegment(Gmt.Intersection.castRay(ray1, pg.toSegments()), 'green', 1);
+        
+
     }).start();
     
 </script>
