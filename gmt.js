@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.8
+ * @version 0.9
  */
 const Gmt = {
 
@@ -436,6 +436,20 @@ const Gmt = {
             this.x += dx;
             this.y += dy;
             return this;
+        }
+
+        moveAway(otherVertex, distance) {
+            let d = distance/this.distanceTo(otherVertex);
+            let dx = d * (this.x - otherVertex.x);
+            let dy = d * (this.y - otherVertex.y);
+            this.move(dx, dy);
+        }
+
+        moveTowards(otherVertex, distance) {
+            let d = distance/this.distanceTo(otherVertex);
+            let dx = d * (otherVertex.x - this.x);
+            let dy = d * (otherVertex.y - this.y);
+            this.move(dx, dy);
         }
 
         place(x, y) {
@@ -1556,11 +1570,45 @@ const Gmt = {
             };
         },
 
+        mousePosVertex() {
+            return new Gmt.Vertex(this._mouse.posX, this._mouse.posY);
+        },
+
+        /**
+         * Returns mouse position adjusted for passed canvas wrapper
+         * @param {Gmt.CanvasWrapper} cw 
+         */
+        mousePosCW(cw) {
+            return {
+                x: (this._mouse.posX - cw.offsetX) / cw.unit,
+                y: (this._mouse.posY - cw.offsetY) / cw.unit
+            };
+        },
+
+        mousePosVertexCW(cw) {
+            return new Gmt.Vertex(
+                (this._mouse.posX - cw.offsetX) / cw.unit,
+                (this._mouse.posY - cw.offsetY) / cw.unit
+            );
+        },
+
+
         // returns mouse movement vector
         mouseMove() {
             return {
                 x: this._mouse.moveX,
                 y: this._mouse.moveY
+            };
+        },
+
+        /**
+         * Returns mouse movement vector adjusted for passed canvas wrapper
+         * @param {Gmt.CanvasWrapper} cw 
+         */
+        mouseMoveCW(cw) {
+            return {
+                x: this._mouse.moveX / cw.unit,
+                y: this._mouse.moveY / cw.unit
             };
         },
 
