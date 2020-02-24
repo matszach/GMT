@@ -1,0 +1,29 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5).setOffset(0, 0);
+
+    let c1 = new Gmt.Circle(50, 50, 20);
+    let ray1 = new Gmt.Segment(10, 40, 80, 90);
+    
+
+
+    new Gmt.Loop(60, loop => {
+        let i = loop.getFrame();
+        cw.fill('black');
+
+        let pg = c1.toPolygon(3, Gmt.rad(i/256));
+
+        cw.fillPolygon(pg, Gmt.rgba(200, 0, 0, 0.1));
+        cw.strokePolygon(pg, 'red', 1);
+
+        cw.strokeSegment(Gmt.Intersection.castRay(ray1, pg.toSegments()), 'green', 1);
+        
+
+    }).start();
+    
+</script>
