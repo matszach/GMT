@@ -33,7 +33,14 @@ const Gmt = {
      * Returns true or false with 50/50 chance for each
      */
     randBool() {
-        return GMT.chance(0.5);
+        return Gmt.chance(0.5);
+    },
+
+    /**
+     * Returns 1 or -1 with 50/50 chance for each
+     */
+    randSign(){
+        return Gmt.randBool() ? 1 : -1;
     },
 
     /**
@@ -991,11 +998,10 @@ const Gmt = {
 
     CanvasWrapper : class {
 
-        canvas = null;
-        context = null;
-        parent = null;
-
         constructor(parentID) {
+            this.canvas = null;
+            this.context = null;
+            this.parent = null;
             if(parentID) {
                 this.initCanvas(parentID);
                 this.refit();    

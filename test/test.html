@@ -5,18 +5,11 @@
 
 <script>
 
-var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5);
-
-var v1 = new Gmt.Vertex(50, 50);
-var v2 = new Gmt.Vertex(70, 70);
-
-new Gmt.Loop(60, loop => {
-    let i = loop.getFrame();
-    cw.fill('black');
-    cw.fillCircle(v1.toCircle(5), cw.rgb(0, 0, 200));
-    cw.fillCircle(v2.toCircle(5), cw.rgb(200, 0, 0));
-    v1.rotate(v2, Gmt.PI/(100 + i/10));
-    v2.rotate(v1, Gmt.PI/(100 - i/10));
-}).start();
-
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2);
+    new Gmt.Loop(30, loop => {
+        let i = loop.getFrame();
+        cw.fill('black');
+    
+    }).start();
+    
 </script>

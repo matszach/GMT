@@ -1,0 +1,39 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(2);
+    
+    var v1 = new Gmt.Vertex(170, 150);
+    var v2 = new Gmt.Vertex(170, 160);
+    var v3 = new Gmt.Vertex(170, 170);
+    var v4 = new Gmt.Vertex(170, 180);
+    var v5 = new Gmt.Vertex(170, 160);
+    var v6 = new Gmt.Vertex(170, 160);
+    
+    new Gmt.Loop(120, loop => {
+        let i = loop.getFrame();
+        cw.fill('black');
+        cw.fillCircle(v1.toCircle(5), cw.rgb(0, 0, 200));
+        cw.fillCircle(v2.toCircle(5), cw.rgb(0, 200, 0));
+        cw.fillCircle(v3.toCircle(5), cw.rgb(200, 0, 0));
+        cw.fillCircle(v4.toCircle(5), cw.rgb(200, 200, 0));
+        cw.fillCircle(v5.toCircle(5), cw.rgb(200, 0, 200));
+        cw.fillCircle(v6.toCircle(5), cw.rgb(0, 200, 200));
+        v1.rotate(v2, Gmt.PI/(100));
+        v2.rotate(v1, -Gmt.PI/(200));
+        v3.rotate(v1, -Gmt.PI/(100));
+        v3.rotate(v2, Gmt.PI/(200));
+        v4.rotate(v3, Gmt.PI/(100));
+        v5.rotate(v1, Gmt.PI/(1000));
+        v5.rotate(v2, Gmt.PI/(1000));
+        v5.rotate(v3, Gmt.PI/(1000));
+        v5.rotate(v4, Gmt.PI/(1000));
+        v6.rotate(v1, Gmt.PI/(-100));
+        v6.rotate(v5, Gmt.PI/(-1000));
+    }).start();
+    
+</script>
