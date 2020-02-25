@@ -42,11 +42,11 @@
             let seg = Gmt.segmentFromRay(m.x, m.y, 100, Gmt.rad(i/50));
             seg = Gmt.Intersection.castRay(seg, edges);
             viewMask.push(seg.end)
-            cw.strokeSegment(seg, Gmt.rgba(100, 0, 0, 0.2), 0.2);
+            cw.strokeSegment(seg, Gmt.rgba(200, 0, 0, 0.2), 0.2);
         });      
 
-        cw.fillPolygon(viewMask, Gmt.rgba(100, 0, 0, 0.1));
-        cw.strokePolygon(viewMask, Gmt.rgba(100, 0, 0, 0.5), 1);
+        cw.fillPolygon(viewMask, Gmt.rgba(200, 0, 0, 0.1));
+        cw.strokePolygon(viewMask, Gmt.rgba(200, 0, 0, 0.5), 1);
 
     }).start();
     
