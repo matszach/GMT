@@ -634,6 +634,11 @@ const Gmt = {
         }
     },
 
+    segmentFromRay(x, y, radius, direction){
+        let cart = Gmt.polarToCartesian(radius, direction);
+        return new Gmt.Segment(x,  y,  x + cart.x, y + cart.y);
+    },  
+
     // sequence of connected verices
     PolyLine : class {
 
@@ -704,7 +709,7 @@ const Gmt = {
         }
 
         add(x, y) {
-            this.body.add(new Gmt.Vertex(x, y));
+            this.body.add(x, y);
             return this;
         }
 
