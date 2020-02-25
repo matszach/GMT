@@ -5,51 +5,35 @@
 
 <script>
 
-    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(1.5).setOffset(0, 0);
-    var v1 = new Gmt.Vertex(50, 50);
-    var v2 = new Gmt.Vertex(50, 50);
-    var v3 = new Gmt.Vertex(50, 50);
-    var v4 = new Gmt.Vertex(50, 50);
-    var v5 = new Gmt.Vertex(50, 50);
-    var v6 = new Gmt.Vertex(50, 50);
-    var v7 = new Gmt.Vertex(50, 50);
-    var v8 = new Gmt.Vertex(50, 50);
+    var cw = new Gmt.CanvasWrapper('myDiv');
+
+    var LEN = 200;
+    var body = Gmt.constructArray(LEN, i => {return new Gmt.Vertex(i * 5, i * 5)} );
 
 
     Gmt.Input.init();
 
     new Gmt.Loop(60, loop => {
-        let i = loop.getFrame();
         cw.fill('black');
 
+        let k = loop.getFrame();
+
         let m = Gmt.Input.mousePosVertexCW(cw);
-        cw.fillCircle(m.toCircle(10), 'blue');
+        cw.fillPolygon(m.toCircle(10).toPolygon(6), 'blue');
 
-        v1.moveTowards(m, v1.distanceTo(m) / 20);
-        cw.fillCircle(v1.toCircle(20), cw.rgba(100, 0, 50, 0.9));
+        let head = body[0];
+        head.moveTowards(m, head.distanceTo(m) / 10); 
+        cw.fillCircle(head.toCircle(20), cw.rgba(255, 0, 0, 0.7));
 
-        v2.moveTowards(v1, v2.distanceTo(v1) / 20);
-        cw.fillCircle(v2.toCircle(18), cw.rgba(100, 0, 50, 0.8));
 
-        v3.moveTowards(v2, v3.distanceTo(v2) / 20);
-        cw.fillCircle(v3.toCircle(16), cw.rgba(100, 0, 50, 0.7));
-
-        v4.moveTowards(v3, v4.distanceTo(v3) / 20);
-        cw.fillCircle(v4.toCircle(14), cw.rgba(100, 0, 50, 0.6));
-
-        v5.moveTowards(v4, v5.distanceTo(v4) / 20);
-        cw.fillCircle(v5.toCircle(12), cw.rgba(100, 0, 50, 0.5));
-
-        v6.moveTowards(v5, v6.distanceTo(v5) / 20);
-        cw.fillCircle(v6.toCircle(10), cw.rgba(100, 0, 50, 0.4));
-
-        v7.moveTowards(v6, v7.distanceTo(v6) / 20);
-        cw.fillCircle(v7.toCircle(8), cw.rgba(100, 0, 50, 0.3));
-
-        v8.moveTowards(v7, v8.distanceTo(v7) / 20);
-        cw.fillCircle(v8.toCircle(6), cw.rgba(100, 0, 50, 0.2));
-
-        
+        for(let i = 1; i < LEN; i++) {
+            let seg = body[i];
+            let target = body[i - 1];
+            let mod1 = (LEN * 1.2 - i) / (LEN * 1.2);
+            let mod2 = (k % LEN - i) % 25 == 0 ? 1.5 : 1
+            seg.moveTowards(target, seg.distanceTo(target) / 10 * mod1);
+            cw.fillCircle(seg.toCircle(20 * mod1 * mod2), cw.rgba(255 * mod1, 200 * (mod2 - 1), 255 - 255 * mod1, 0.7 * mod1));
+        }
 
     }).start();
     

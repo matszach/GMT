@@ -77,15 +77,6 @@ const Gmt = {
      */
 
     /**
-     * Returns the value, unless it's a null. Then the default is generated
-     * @param {Any} value - value returned if not null
-     * @param {Function} def - default value generator function
-     */
-    nullishf(value, def) {
-        return value ? value : def();
-    },
-
-    /**
      * Clamps value between min and max
      * @param {Number} num - original value
      * @param {Number} min - value's bottom boundary
@@ -211,6 +202,18 @@ const Gmt = {
     },
 
     /**
+     * Constructs an Array of size 'len' 
+     * using function 'func' to generate the array's content 
+     * @param {Number} len - size of the desired array
+     * @param {Function} func - array element generator
+     */
+    constructArray(len, func) {
+        let arr = [];
+        Gmt.iter1D(len, i => arr.push(func(i)));
+        return arr;
+    },
+
+    /**
      * Creates a 2D array of specified size and default value
      * @param {Number} sizeX - X size of the array
      * @param {Number} sizeY - Y size of the array
@@ -236,7 +239,7 @@ const Gmt = {
     RingArray : class {
 
         constructor(baseArray) {
-            this.values = baseArray || []
+            this.values = baseArray || [];
             this.i = 0;
         }
 
@@ -264,7 +267,7 @@ const Gmt = {
         next(step) {
             step = step || 1;
             this.i += step;
-            this.i = this.i < this.values.length ? this.i : (0 + this.i - this.values.length);
+            this.i = this.i < this.values.length ? this.i : (this.i - this.values.length);
             return this.get();
         }
 
@@ -274,6 +277,70 @@ const Gmt = {
             this.i -= step;
             this.i = this.i >= 0 ? this.i : (this.values.length + this.i);
             return this.get();
+        }
+
+    },
+
+    /**
+     * Array that can be iterated back and forth
+     */
+    BackAndForthArray : class {
+
+        constructor(baseArray) {
+            this.values = baseArray || [];
+            this.i = 0;
+            this.directionForward = true;
+        }
+
+        // Adds a new item to the end of the base array
+        add(item) {
+            this.values.push(item);
+        }
+
+        // Replaces the current item in the ring
+        replace(item) {
+            this.values[this.i] = item;
+        }
+        
+        // Resets the ring to it's base position 
+		reset() {
+            this.i = 0;
+            this.directionForward = true;
+        }
+        
+        // reverses the direction of the array
+        reverse() {
+            this.directionForward = !this.directionForward;
+        }
+
+        // returns the current value
+        get() {
+            return this.values[this.i];
+        }
+
+        // Moves the ring to it's next position and returns it's value
+        next(step) {
+            step = step || 1;
+            if(this.directionForward) {
+                this.i += step;
+                if(this.i >= this.values.length) {
+                    this.i = 2 * this.values.length - this.i;
+                    this.directionForward = false;
+                }
+            } else {
+                this.i -= step;
+                if(this.i < 0) {
+                    this.i *= -1;
+                    this.directionForward = true;
+                }
+            }
+            return this.get();
+        }
+
+        // Moves the ring to it's previous position and returns it's value
+        prev(step) {
+            step = step || 1;
+            return this.next(-step);
         }
 
     },
@@ -439,17 +506,25 @@ const Gmt = {
         }
 
         moveAway(otherVertex, distance) {
-            let d = distance/this.distanceTo(otherVertex);
+            let distanceToOtherVertex = this.distanceTo(otherVertex);
+            if(distanceToOtherVertex == 0) {
+                return this;
+            }
+            let d = distance / distanceToOtherVertex;
             let dx = d * (this.x - otherVertex.x);
             let dy = d * (this.y - otherVertex.y);
-            this.move(dx, dy);
+            return this.move(dx, dy);
         }
 
         moveTowards(otherVertex, distance) {
-            let d = distance/this.distanceTo(otherVertex);
+            let distanceToOtherVertex = this.distanceTo(otherVertex);
+            if(distanceToOtherVertex == 0) {
+                return this;
+            }
+            let d = distance / distanceToOtherVertex;
             let dx = d * (otherVertex.x - this.x);
             let dy = d * (otherVertex.y - this.y);
-            this.move(dx, dy);
+            return this.move(dx, dy);
         }
 
         place(x, y) {
@@ -473,6 +548,14 @@ const Gmt = {
 
         toCircle(radius) {
             return new Gmt.Circle(this.x, this.y, radius);
+        }
+
+        toRectangle(width, height) {
+            return new Gmt.Rectangle(this.x - width/2, this.y - height/2, width, height);
+        }
+
+        toSquare(sideLength) {
+            return this.toRectangle(sideLength, sideLength);
         }
 
         copy() {
@@ -1090,6 +1173,7 @@ const Gmt = {
 
         /**
          * Returns a Gmt.Rectangle equal tothe current canvas area
+         * This rectangle, when drawn with fillRect() method, will fill the entire canvas
          */
         getBoundingRect() {
             return new Gmt.Rectangle(
