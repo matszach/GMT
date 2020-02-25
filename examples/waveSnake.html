@@ -7,8 +7,8 @@
 
     var cw = new Gmt.CanvasWrapper('myDiv');
 
-    var LEN = 200;
-    var body = Gmt.constructArray(LEN, i => {return new Gmt.Vertex(i * 5, i * 5)} );
+    var LEN = 500;
+    var body = Gmt.constructArray(LEN, i => {return new Gmt.Vertex(i * 1, i * 1)} );
 
 
     Gmt.Input.init();
@@ -27,11 +27,19 @@
 
 
         for(let i = 1; i < LEN; i++) {
+            
             let seg = body[i];
             let target = body[i - 1];
+
             let mod1 = (LEN * 1.2 - i) / (LEN * 1.2);
-            let mod2 = (k % LEN - i) % 25 == 0 ? 1.5 : 1
+            let mod2 = (k % LEN - i) % 50 == 0 ? 1.5 : 1
+
             seg.moveTowards(target, seg.distanceTo(target) / 10 * mod1);
+
+            if(seg.distanceTo(head) < 200){
+                seg.moveAway(head, 1);
+            }
+
             cw.fillCircle(seg.toCircle(20 * mod1 * mod2), cw.rgba(255 * mod1, 200 * (mod2 - 1), 255 - 255 * mod1, 0.7 * mod1));
         }
 
