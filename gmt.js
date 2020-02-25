@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 0.9
+ * @version 1.0
  */
 const Gmt = {
 
@@ -234,6 +234,26 @@ const Gmt = {
     },
 
     /**
+     * generates consecutive numbers in an arithmetic series
+     */
+    Counter : class {
+
+        constructor(baseValue, step){
+            this.value = baseValue || 0;
+            this.step = step || 0
+            this.value -= this.step;
+        }
+
+        next() {
+            return this.value += this.step;
+        }
+
+        reset() {
+            this.value = -this.step;
+        }
+    },
+
+    /**
      * Circular array that can be iterated over in both directions
      */
     RingArray : class {
@@ -246,16 +266,19 @@ const Gmt = {
         // Adds a new item to the end of the base array
         add(item) {
             this.values.push(item);
+            return this;
         }
 
         // Replaces the current item in the ring
         replace(item) {
             this.values[this.i] = item;
+            return this;
         }
         
         // Resets the ring to it's base position 
 		reset() {
-			this.i = 0;
+            this.i = 0;
+            return this;
 		}
 
         // returns the current value
@@ -278,6 +301,30 @@ const Gmt = {
             this.i = this.i >= 0 ? this.i : (this.values.length + this.i);
             return this.get();
         }
+    },
+
+    /**
+     * Counter that wraps around from its max value to its min value
+     */
+    RingCounter : class {
+
+        constructor(min, max, step){
+            this.min = min || 0;
+            this.max = max || 100;
+            this.step = step || 0;
+            this.value = this.min - this.step;
+        }
+
+        next() {
+            this.value += this.step;
+            this.value = this.value <= this.max ? this.value : (this.value - this.max + this.min - 1);
+            return this.value;
+        }
+
+        reset() {
+            this.value = this.min - this.step;
+            return this;
+        }
 
     },
 
@@ -295,22 +342,26 @@ const Gmt = {
         // Adds a new item to the end of the base array
         add(item) {
             this.values.push(item);
+            return this;
         }
 
         // Replaces the current item in the ring
         replace(item) {
             this.values[this.i] = item;
+            return this;
         }
         
         // Resets the ring to it's base position 
 		reset() {
             this.i = 0;
             this.directionForward = true;
+            return this;
         }
         
         // reverses the direction of the array
         reverse() {
             this.directionForward = !this.directionForward;
+            return this;
         }
 
         // returns the current value
@@ -404,26 +455,6 @@ const Gmt = {
             return x >= 0 && x < this.xSize && y >= 0 && y < this.ySize;
         }
 
-    },
-    
-    /**
-     * generates consecutive numbers in an arithmetic series
-     */
-    Counter : class {
-
-        constructor(baseValue, step){
-            this.value = baseValue || 0;
-            this.step = step || 0
-            this.value -= this.step;
-        }
-
-        next() {
-            return this.value += this.step;
-        }
-
-        reset() {
-            this.value = -this.step;
-        }
     },
 
     /**
@@ -618,6 +649,11 @@ const Gmt = {
             return this;
         }
 
+        push(vertex) {
+            this.vertices.push(vertex);
+            return this;
+        }
+
         move(x, y) {
             this.vertices.forEach(e => e.move(x, y));
             return this;
@@ -668,7 +704,12 @@ const Gmt = {
         }
 
         add(x, y) {
-            this.body.vertices.push(new Gmt.Vertex(x, y));
+            this.body.add(new Gmt.Vertex(x, y));
+            return this;
+        }
+
+        push(vertex) {
+            this.body.push(vertex);
             return this;
         }
 
@@ -1418,7 +1459,7 @@ const Gmt = {
          * Generate linear gradient 
          * @param {Gmt.Vertex} startVertex - gradient start vertex
          * @param {Gmt.Vertex} endVertex - gradient end vertex
-         * @param  {... Number, String(RGB/RGBA)} colorInfo -  1. step 0-1, 2. RGB, 1. ...
+         * @param {any} colorInfo -  1. step 0-1, 2. RGB, 1. ...
          */
         linearGradient(startVertex, endVertex, ...colorInfo) {
             let grd = this.context.createLinearGradient(
@@ -1437,7 +1478,7 @@ const Gmt = {
          * Generate linear gradient 
          * @param {Gmt.Circle} startCircle - gradient start circle
          * @param {Gmt.Circle} endCircle - gradiendt end circle
-         * @param  {... Number, String(RGB/RGBA)} colorInfo -  1. step 0-1, 2. RGB, 1. ...
+         * @param {any} colorInfo -  1. step 0-1, 2. RGB, 1. ...
          */
         radialGradient(startCircle, endCircle, ...colorInfo) {
             let grd = this.context.createRadialGradient(

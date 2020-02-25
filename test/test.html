@@ -5,35 +5,15 @@
 
 <script>
 
-    var cw = new Gmt.CanvasWrapper('myDiv');
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5);
 
-    var LEN = 200;
-    var body = Gmt.constructArray(LEN, i => {return new Gmt.Vertex(i * 5, i * 5)} );
+    var rc = new Gmt.RingCounter(10, 20, 3);
 
+    console.log(rc);
 
-    Gmt.Input.init();
-
-    new Gmt.Loop(60, loop => {
+    new Gmt.Loop(1, loop => {
         cw.fill('black');
-
-        let k = loop.getFrame();
-
-        let m = Gmt.Input.mousePosVertexCW(cw);
-        cw.fillPolygon(m.toCircle(10).toPolygon(6), 'blue');
-
-        let head = body[0];
-        head.moveTowards(m, head.distanceTo(m) / 10); 
-        cw.fillCircle(head.toCircle(20), cw.rgba(255, 0, 0, 0.7));
-
-
-        for(let i = 1; i < LEN; i++) {
-            let seg = body[i];
-            let target = body[i - 1];
-            let mod1 = (LEN * 1.2 - i) / (LEN * 1.2);
-            let mod2 = (k % LEN - i) % 25 == 0 ? 1.5 : 1
-            seg.moveTowards(target, seg.distanceTo(target) / 10 * mod1);
-            cw.fillCircle(seg.toCircle(20 * mod1 * mod2), cw.rgba(255 * mod1, 200 * (mod2 - 1), 255 - 255 * mod1, 0.7 * mod1));
-        }
+        console.log(rc.next());
 
     }).start();
     

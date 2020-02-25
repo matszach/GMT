@@ -1,0 +1,27 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5);
+
+    let range = Gmt.range(1, 150);
+
+    let ring = new Gmt.RingArray(range);
+    let bnf = new Gmt.BackAndForthArray(range);
+
+
+    new Gmt.Loop(60, loop => {
+        cw.fill('black');
+        
+        let p1 = new Gmt.Vertex(20 + ring.next(), 30);
+        let p2 = new Gmt.Vertex(20 + bnf.next(), 60);
+
+        cw.fillCircle(p1.toCircle(5), Gmt.rgb(0, 0, 255));
+        cw.fillCircle(p2.toCircle(5), Gmt.rgb(255, 0, 0));
+
+    }).start();
+    
+</script>
