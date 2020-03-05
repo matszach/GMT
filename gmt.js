@@ -458,6 +458,38 @@ const Gmt = {
     },
 
     /**
+     * 
+     */
+    Typed2DArray : class {
+
+        constructor(sizeX, sizeY, type, defaultValue) {
+            this._sizeX = sizeX;
+            this._sizeY = sizeY;
+            arrayClass = arrayClass || Int32Array;
+            this._values = new arrayClass(sizeX * sizeY);
+            this._values.fill(defaultValue || 0);
+        } 
+
+        _convertIndex(x, y) {
+            return x + y * this._sizeX;
+        };
+
+        get(x, y) {
+            return this._values[this._convertIndex(x, y)];
+        } 
+
+        put(x, y, value) {
+            this._values[this._convertIndex(x, y)] = value;
+            return this;
+        }
+
+        isInRange(x, y) {
+            let index = this._convertIndex(x, y);
+            return Gmt.between(index, 0, this._values.length - 1);
+        }
+    },
+
+    /**
      * ===== ===== ===== ===== GEOMETRY 2D ===== ===== ===== =====
      */
 
@@ -534,6 +566,11 @@ const Gmt = {
             this.x += dx;
             this.y += dy;
             return this;
+        }
+
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
         }
 
         moveAway(otherVertex, distance) {
@@ -615,6 +652,11 @@ const Gmt = {
             this.end.move(dx, dy);
             return this;
         }
+        
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
+        }
 
         rotate(pivot, angle) {
             this.start.rotate(pivot, angle);
@@ -662,6 +704,11 @@ const Gmt = {
         move(x, y) {
             this.vertices.forEach(e => e.move(x, y));
             return this;
+        }
+
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
         }
 
         rotate(pivot, angle) {
@@ -723,6 +770,11 @@ const Gmt = {
             return this;
         }
 
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
+        }
+
         rotate(pivot, angle) {
             this.body.rotate(pivot, angle);
             return this;
@@ -767,6 +819,11 @@ const Gmt = {
             this.y += dy;
             return this;
         } 
+
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
+        }
 
         rotate(pivot, angle) {
             let center = this.getCenter();
@@ -820,6 +877,11 @@ const Gmt = {
             this.x += dx;
             this.y += dy;
             return this;
+        }
+
+        movePolar(distance, direction) {
+            let crt = Gmt.polarToCartesian(distance, direction);
+            this.move(crt.x, crt.y);
         }
 
         rotate(pivot, angle) {
@@ -1154,6 +1216,42 @@ const Gmt = {
     },
 
     /**
+     * 
+     */
+    Observer : class {
+
+        constructor(options) {
+
+            if(!options.lookup) {
+                throw 'No \"lookup\" option given.';
+            }
+
+            this.interval = null;
+            this.value = null;
+            this.lookup = options.lookup;
+            this.time = options.time || 200;
+            this.onchange = options.onchange || ((newValue, oldValue) => {});
+        }
+
+        start() {
+            this.value = this.lookup();
+            this.interval = setInterval(obs => {
+                var newValue = obs.lookup();
+                if(obs.value !== newValue) {
+                    obs.onchange(newValue, obs.value);
+                    obs.value = newValue;
+                }
+            }, this.time, this);
+        }
+
+        stop() {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+
+    },
+
+    /**
      * ===== ===== ===== ===== Image asset wrappers ===== ===== ===== =====
      */
 
@@ -1261,12 +1359,14 @@ const Gmt = {
         // sets up fill parameters
         setFillStyle(color) {
             this.context.fillStyle = color || 'black';
+            return this;
         }
 
         // sets up stroke parameters
         setStrokeStyle(color, lineWidth) {
             this.context.strokeStyle = color || 'black'
             this.context.lineWidth = (lineWidth || 1) * this.unit;
+            return this;
         }
 
         // initiates canvas a canvas that resizes to fit it's parent div
@@ -1278,23 +1378,27 @@ const Gmt = {
             this.parent.appendChild(this.canvas);
             let cw = this;
             window.addEventListener('resize', () => cw.refit());
+            return this;
         }
 
         // resizes the canvas to fit it's parent
         refit() {
             this.canvas.width = this.parent.clientWidth;
             this.canvas.height = this.parent.clientHeight;
+            return this;
         }
 
         // clears the entire canvas
         clear() {
             this.context.clearRect(0, 0 , this.canvas.width, this.canvas.height);
+            return this;
         }
 
         // fills the entire canvas with color
         fill(color) {
             this.context.fillStyle = color;
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            return this;
         }
 
         // draws a filled Gmt.Rectangle 
@@ -1304,6 +1408,7 @@ const Gmt = {
                                   rect.y * this.unit + this.offsetY,  // y
                                   rect.width * this.unit,             // width
                                   rect.height * this.unit);           // height
+            return this;
         } 
 
         // draws an empty Gmt.Rectangle
@@ -1313,7 +1418,16 @@ const Gmt = {
                                     rect.y * this.unit + this.offsetY,  // y
                                     rect.width * this.unit,             // width
                                     rect.height * this.unit);           // height
+            return this;
         }
+
+        // combines fillRect() and strokeRect() functions
+        drawRect(rect, colorFill, colorStroke, lineWidth) {
+            this.fillRect(rect, colorFill);
+            this.strokeRect(rect, colorStroke || colorFill, lineWidth);
+            return this;
+        }
+
 
         // draws a Gmt.Segment
         strokeSegment(seg, color, lineWidth) {
@@ -1322,6 +1436,7 @@ const Gmt = {
             this.context.moveTo(seg.start.x * this.unit + this.offsetX, seg.start.y * this.unit + this.offsetY);
             this.context.lineTo(seg.end.x * this.unit + this.offsetX, seg.end.y * this.unit + this.offsetY);
             this.context.stroke();
+            return this;
         }
 
         // draws multiple Gmt.Segments
@@ -1341,11 +1456,13 @@ const Gmt = {
             });
             this.context.closePath();
             this.context.stroke();
+            return this;
         }
 
         // draws a Gmt.PolyLine
         strokePolyLine(pline, color, lineWidth) {
             this.strokeSegments(pline.toSegments(), color, lineWidth);
+            return this;
         }
 
         // draws a filled Gmt.Polygon
@@ -1367,11 +1484,20 @@ const Gmt = {
             }
             this.context.closePath();
             this.context.fill();
+            return this;
         }
 
         // draws an empty Gmt.Polygon
         strokePolygon(polygon, color, lineWidth) {
             this.strokeSegments(polygon.toSegments(), color, lineWidth);
+            return this;
+        }
+
+        // combines fillPolygon() and strokePolygon() functions
+        drawPolygon(rect, colorFill, colorStroke, lineWidth) {
+            this.fillPolygon(rect, colorFill);
+            this.strokePolygon(rect, colorStroke || colorFill, lineWidth);
+            return this;
         }
 
         // draws a filled Gmt.Circle
@@ -1382,6 +1508,7 @@ const Gmt = {
                              circle.y * this.unit + this.offsetY, 
                              circle.radius * this.unit, 0, Gmt.PI * 2);
             this.context.fill();
+            return this;
         }
 
         // draws an empty Gmt.Circle
@@ -1392,6 +1519,14 @@ const Gmt = {
                              circle.y * this.unit + this.offsetY, 
                              circle.radius * this.unit, 0, Gmt.PI * 2);
             this.context.stroke();
+            return this;
+        }
+
+        // combines fillCircle() and strokeCircle() functions
+        drawCircle(rect, colorFill, colorStroke, lineWidth) {
+            this.fillCircle(rect, colorFill);
+            this.strokeCircle(rect, colorStroke || colorFill, lineWidth);
+            return this;
         }
 
         // writes text 
@@ -1405,6 +1540,7 @@ const Gmt = {
                 x * this.unit + this.offsetX,
                 y * this.unit + this.offsetY
             );
+            return this;
         }
 
         // draws a tileset tile on canvas
@@ -1434,7 +1570,7 @@ const Gmt = {
 
             // context setting restore
             this.context.restore();
-
+            return this;
         }
         
         // ===== colors =====
@@ -1690,6 +1826,14 @@ const Gmt = {
                 }
             }
             return true;
+        },
+
+        handleKeys(...args) {
+            for(let i = 0; i < args.length;) {
+                if(this.key(args[i++])){
+                    args[i++]();
+                }
+            }
         },
 
         // returns mouse position in window vertex

@@ -10,7 +10,7 @@
 
     let obs = new Gmt.Observer({
         lookup: () => myVal, // returns myVal
-        onchange: (n, o) => console.log(n, o)
+        onchange: (n, o) => console.log(n, o) // logs new and old values
     }).start();
 
     // LOOP
