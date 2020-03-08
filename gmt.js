@@ -1900,7 +1900,7 @@ const Gmt = {
     /**
      * Dice roll generator
      */
-    Dice = {
+    Dice : {
 
         d4() {
           return Gmt.randInt(1, 4);  
@@ -1908,7 +1908,7 @@ const Gmt = {
 
         d4s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d4()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d4()));
             return rolls;
         },
 
@@ -1918,7 +1918,7 @@ const Gmt = {
 
         d6s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d6()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d6()));
             return rolls;
         },
 
@@ -1928,7 +1928,7 @@ const Gmt = {
 
         d8s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d8()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d8()));
             return rolls;
         },
 
@@ -1938,7 +1938,7 @@ const Gmt = {
 
         d10s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d10()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d10()));
             return rolls;
         },
 
@@ -1948,7 +1948,7 @@ const Gmt = {
     
         d12s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d12()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d12()));
             return rolls;
         },
 
@@ -1958,7 +1958,7 @@ const Gmt = {
 
         d20s(number) {
             let rolls = [];
-            Gmt.times(number, () => rolls.push(Gmt.Dice.d20()));
+            Gmt.iter1D(number, () => rolls.push(Gmt.Dice.d20()));
             return rolls;
         }
     },

@@ -6,16 +6,17 @@
 <script>
 
     // INIT
-    let myVal = 100;
-
-    let obs = new Gmt.Observer({
-        lookup: () => myVal, // returns myVal
-        onchange: (n, o) => console.log(n, o)
-    }).start();
-
-    // LOOP
-    new Gmt.Loop(60, loop => {
-        myVal++;
-    }).start();
+    console.log(Gmt.Dice.d4());
+    console.log(Gmt.Dice.d4s(5));
+    console.log(Gmt.Dice.d6());
+    console.log(Gmt.Dice.d6s(5));
+    console.log(Gmt.Dice.d8());
+    console.log(Gmt.Dice.d8s(5));
+    console.log(Gmt.Dice.d10());
+    console.log(Gmt.Dice.d10s(5))
+    console.log(Gmt.Dice.d12());
+    console.log(Gmt.Dice.d12s(5))
+    console.log(Gmt.Dice.d20());
+    console.log(Gmt.Dice.d20s(5))
     
 </script>
