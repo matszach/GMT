@@ -1895,6 +1895,71 @@ const Gmt = {
             };
         }
 
-    }
+    },
 
+    /**
+     * Dice roll generator
+     */
+    Dice = {
+
+        d4() {
+          return Gmt.randInt(1, 4);  
+        },
+
+        d4s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d4()));
+            return rolls;
+        },
+
+        d6() {
+            return Gmt.randInt(1, 6);  
+        },
+
+        d6s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d6()));
+            return rolls;
+        },
+
+        d8() {
+            return Gmt.randInt(1, 8);  
+        },
+
+        d8s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d8()));
+            return rolls;
+        },
+
+        d10() {
+        return Gmt.randInt(1, 10);  
+        },
+
+        d10s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d10()));
+            return rolls;
+        },
+
+        d12() {
+            return Gmt.randInt(1, 12);  
+        },
+    
+        d12s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d12()));
+            return rolls;
+        },
+
+        d20() {
+            return Gmt.randInt(1, 20);  
+        },
+
+        d20s(number) {
+            let rolls = [];
+            Gmt.times(number, () => rolls.push(Gmt.Dice.d20()));
+            return rolls;
+        }
+    },
 }
