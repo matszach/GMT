@@ -5,18 +5,33 @@
 
 <script>
 
+    const NOF_ATTACKS = 1000000;
+    const AC = 5;
+
     // INIT
-    console.log(Gmt.Dice.d4());
-    console.log(Gmt.Dice.d4s(5));
-    console.log(Gmt.Dice.d6());
-    console.log(Gmt.Dice.d6s(5));
-    console.log(Gmt.Dice.d8());
-    console.log(Gmt.Dice.d8s(5));
-    console.log(Gmt.Dice.d10());
-    console.log(Gmt.Dice.d10s(5))
-    console.log(Gmt.Dice.d12());
-    console.log(Gmt.Dice.d12s(5))
-    console.log(Gmt.Dice.d20());
-    console.log(Gmt.Dice.d20s(5))
+    let totalDmgPrecise = 0;
+    Gmt.iter1D(NOF_ATTACKS, () => {
+        if(Math.max(...Gmt.Dice.d20s(2)) >= AC) {
+            totalDmgPrecise += Math.min(...Gmt.Dice.d12s(2));
+        }
+    });
+
+    let totalDmgRegular = 0;
+    Gmt.iter1D(NOF_ATTACKS, () => {
+        if(Gmt.Dice.d20() >= AC) {
+            totalDmgRegular += Gmt.Dice.d12();
+        }
+    });
+
+    let totalDmgBrutal = 0;
+    Gmt.iter1D(NOF_ATTACKS, () => {
+        if(Math.min(...Gmt.Dice.d20s(2)) >= AC) {
+            totalDmgBrutal += Gmt.Dice.d12() + Gmt.Dice.d12();
+        }
+    });
     
+    console.log(totalDmgPrecise/NOF_ATTACKS);
+    console.log(totalDmgRegular/NOF_ATTACKS);
+    console.log(totalDmgBrutal/NOF_ATTACKS);
+
 </script>

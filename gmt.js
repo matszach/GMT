@@ -58,7 +58,7 @@ const Gmt = {
      * @param {Integer} max - the highest possible value returned
      */
     randInt(min, max) {
-        return Math.round(this.randFloat(min, max)); 
+        return Math.floor(this.randFloat(min, max + 1)); 
     },
 
     /**
@@ -1523,9 +1523,9 @@ const Gmt = {
         }
 
         // combines fillCircle() and strokeCircle() functions
-        drawCircle(rect, colorFill, colorStroke, lineWidth) {
-            this.fillCircle(rect, colorFill);
-            this.strokeCircle(rect, colorStroke || colorFill, lineWidth);
+        drawCircle(circle, colorFill, colorStroke, lineWidth) {
+            this.fillCircle(circle, colorFill);
+            this.strokeCircle(circle, colorStroke || colorFill, lineWidth);
             return this;
         }
 
