@@ -1440,7 +1440,26 @@ const Gmt = {
         }
 
         // draws multiple Gmt.Segments
-        strokeSegments(segments, color, lineWidth) {
+        strokeSegmentsOpen(segments, color, lineWidth) {
+            this.setStrokeStyle(color, lineWidth);
+            this.context.beginPath();
+            let sts = segments[0];
+            this.context.moveTo(
+                sts.start.x * this.unit + this.offsetX, 
+                sts.start.y * this.unit + this.offsetY
+            );
+            segments.forEach(seg => {
+                this.context.lineTo(
+                    seg.end.x * this.unit + this.offsetX, 
+                    seg.end.y * this.unit + this.offsetY
+                );
+            });
+            this.context.stroke();
+            return this;
+        }
+
+        // draws multiple Gmt.Segments and closes the path
+        strokeSegmentsClosed(segments, color, lineWidth) {
             this.setStrokeStyle(color, lineWidth);
             this.context.beginPath();
             let sts = segments[0];
@@ -1461,7 +1480,7 @@ const Gmt = {
 
         // draws a Gmt.PolyLine
         strokePolyLine(pline, color, lineWidth) {
-            this.strokeSegments(pline.toSegments(), color, lineWidth);
+            this.strokeSegmentsOpen(pline.toSegments(), color, lineWidth);
             return this;
         }
 
@@ -1489,7 +1508,7 @@ const Gmt = {
 
         // draws an empty Gmt.Polygon
         strokePolygon(polygon, color, lineWidth) {
-            this.strokeSegments(polygon.toSegments(), color, lineWidth);
+            this.strokeSegmentsClosed(polygon.toSegments(), color, lineWidth);
             return this;
         }
 
