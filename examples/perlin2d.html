@@ -10,11 +10,12 @@
     let cw = new Gmt.CanvasWrapper('myDiv');
 
     new Gmt.Loop(60, loop => {
-        let t = Gmt.Perlin.map2d(300, 200, 30, 30, loop.getFrame(), loop.getFrame());
+        let f = loop.getFrame();
+        let t = Gmt.Perlin.map2d(300, 200, 30, 30, f, f/2);
         cw.fill('black');
         t.iter((x, y, v) => {
             let r = new Gmt.Rectangle(x * 3, y * 3, 3, 3);
-            let col = Gmt.rgb(0, 0, v * 100 + 50);
+            let col = Gmt.rgb(f % 255, 0, v * 100 + 50);
             cw.fillRect(r, col);
         });
     }).start();
