@@ -1,0 +1,60 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    const S = 20;
+    const D = S/4;
+    const OFFSET = S/2;
+    const SIZE_X = Math.ceil(1530/S);
+    const SIZE_Y = Math.ceil(750/S);
+
+    var fcol = Gmt.rgba(0, 0, 255, 0.2);
+    var scol = Gmt.rgba(0, 0, 255, 0.5);
+    var pcol = Gmt.rgba(0, 0, 255, 1);
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+    var vtab = new Gmt.Table2D(SIZE_X, SIZE_Y, null);   
+
+    vtab.iter((x, y) => vtab.put(x, y, new Gmt.Vertex(
+        OFFSET + x * S + Gmt.randFloat(-D, D), 
+        OFFSET + y * S + Gmt.randFloat(-D, D)
+    )));
+
+    vtab.iter((x, y, v) => {
+       if(y % 2 == 0) {
+           v.move(S/2, 0);
+       } 
+    });
+
+    let pgs = [];
+    vtab.iter((x, y) => {
+        if(x < vtab.xSize - 1 && y < vtab.ySize - 1) {
+            if(y % 2 == 0) {
+                let pg1 = new Gmt.Polygon();
+                pg1.push(vtab.get(x, y)).push(vtab.get(x, y + 1)).push(vtab.get(x + 1, y + 1));
+                pgs.push(pg1);
+                let pg2 = new Gmt.Polygon();
+                pg2.push(vtab.get(x, y)).push(vtab.get(x + 1, y)).push(vtab.get(x + 1, y + 1));
+                pgs.push(pg2);
+            } else {
+                let pg1 = new Gmt.Polygon();
+                pg1.push(vtab.get(x, y)).push(vtab.get(x + 1, y)).push(vtab.get(x, y + 1));
+                pgs.push(pg1);
+                let pg2 = new Gmt.Polygon();
+                pg2.push(vtab.get(x + 1, y)).push(vtab.get(x, y + 1)).push(vtab.get(x + 1, y + 1));
+                pgs.push(pg2);
+            }
+        }
+    });
+
+    new Gmt.Loop(10, loop => {
+        cw.fill('black');
+        pgs.forEach(pg => cw.drawPolygon(pg, fcol, scol, 0.5));
+        vtab.iter((x, y, v) => cw.fillCircle(v.toCircle(1), pcol));
+    }).start();
+   
+
+</script>

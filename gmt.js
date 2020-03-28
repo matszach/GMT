@@ -69,8 +69,97 @@ const Gmt = {
         return list[this.randInt(0, list.length - 1)];
     },
 
+    shuffle(list) {
+        list = this.copyArray(list);
+        for(let i = 0; i < list.length; i++) {
+            let swapIndex = this.randInt(0, list.length - 1)
+            let temp = list[i];
+            list[i] = list[swapIndex];
+            list[swapIndex] = temp;
+        }
+        return list;
+    },
 
+    /**
+     * ===== ===== ===== ===== PERLIN ===== ===== ===== =====
+     * Based on josephg\'s noisejs
+     * @see https://github.com/josephg/noisejs/blob/master/perlin.js
+     */
+    Perlin: {
 
+        _Grad: class {
+
+            constructor(x, y, z) {
+                this.x = x; 
+                this.y = y; 
+                this.z = z;
+            }
+
+            dot2(x, y) {
+                return this.x * x + this.y * y;
+            }
+
+            dot3 = function(x, y, z) {
+                return this.x * x + this.y * y + this.z * z;
+            }
+        },
+
+        init() {
+            Gmt.Perlin._gradBase = [
+                new Gmt.Perlin._Grad( 1, 1, 0), new Gmt.Perlin._Grad(-1, 1, 0), new Gmt.Perlin._Grad( 1,-1, 0),
+                new Gmt.Perlin._Grad(-1,-1, 0), new Gmt.Perlin._Grad( 1, 0, 1), new Gmt.Perlin._Grad(-1, 0, 1),
+                new Gmt.Perlin._Grad( 1, 0,-1), new Gmt.Perlin._Grad(-1, 0,-1), new Gmt.Perlin._Grad( 0, 1, 1),
+                new Gmt.Perlin._Grad( 0,-1, 1), new Gmt.Perlin._Grad( 0, 1,-1), new Gmt.Perlin._Grad( 0,-1,-1)
+            ];
+            Gmt.Perlin._p = Gmt.shuffle(Gmt.range(0, 255));
+            Gmt.Perlin._perm = Gmt.constructArray(512, i => Gmt.Perlin._p[i % 256]);
+            Gmt.Perlin._grad = Gmt.constructArray(512, i => Gmt.Perlin._gradBase[i % 12]);
+            return Gmt.Perlin;
+        },
+
+        _fade(t) {
+            return t * t * t * (t * (t * 6 - 15) + 10);
+        },
+        
+        _lerp(a, b, t) {
+            return (1 - t) * a + t * b;
+        },
+
+        v2d(x, y) {
+
+            let fx = Math.floor(x);
+            let fy = Math.floor(y);
+
+            x = x - fx; 
+            y = y - fy;
+            fx = fx & 255; 
+            fy = fy & 255;
+        
+            var n00 = Gmt.Perlin._grad[fx + Gmt.Perlin._perm[fy]].dot2(x, y);
+            var n01 = Gmt.Perlin._grad[fx + Gmt.Perlin._perm[fy + 1]].dot2(x, y - 1);
+            var n10 = Gmt.Perlin._grad[fx + 1 + Gmt.Perlin._perm[fy]].dot2(x - 1, y);
+            var n11 = Gmt.Perlin._grad[fx + 1 + Gmt.Perlin._perm[fy + 1]].dot2(x - 1, y - 1);
+        
+            var u = Gmt.Perlin._fade(x);
+        
+            return Gmt.Perlin._lerp(
+                Gmt.Perlin._lerp(n00, n10, u),
+                Gmt.Perlin._lerp(n01, n11, u),
+                Gmt.Perlin._fade(y)
+            );
+        },
+
+        map2d(xSize, ySize, xStep, yStep, xSeed, ySeed) {
+            xStep = xStep || 100;
+            yStep = yStep || 100;
+            xSeed = xSeed || 0;
+            ySeed = ySeed || 0;
+            let t = new Gmt.Typed2DArray(xSize, ySize, Float32Array);
+            t.iter((x, y) => t.put(x, y, Gmt.Perlin.v2d((x + xSeed)/xStep, (y + ySeed)/yStep)));
+            return t;
+        }
+    
+    },
 
     /**
      * ===== ===== ===== ===== UTIL ===== ===== ===== =====
@@ -184,6 +273,16 @@ const Gmt = {
     /**
      * ===== ===== ===== ===== DATA STRUCTURES ===== ===== ===== =====
      */
+
+    /**
+     * Returns a shallow copy of an array
+     * @param {Array} arr 
+     */
+    copyArray(arr) {
+        let newArr = new Array(arr.length);
+        arr.forEach((e, i) => newArr[i] = e);
+        return newArr;
+    },
 
     /**
      * Creates an array of numeric values
@@ -465,8 +564,8 @@ const Gmt = {
         constructor(sizeX, sizeY, type, defaultValue) {
             this._sizeX = sizeX;
             this._sizeY = sizeY;
-            arrayClass = arrayClass || Int32Array;
-            this._values = new arrayClass(sizeX * sizeY);
+            type = type || Int32Array;
+            this._values = new type(sizeX * sizeY);
             this._values.fill(defaultValue || 0);
         } 
 
@@ -481,6 +580,14 @@ const Gmt = {
         put(x, y, value) {
             this._values[this._convertIndex(x, y)] = value;
             return this;
+        }
+
+        iter(funct) {
+            for(let x = 0; x < this._sizeX; x++) {
+                for(let y = 0; y < this._sizeY; y++) {
+                    funct(x, y, this.get(x, y));
+                }   
+            }
         }
 
         isInRange(x, y) {
@@ -1313,7 +1420,15 @@ const Gmt = {
             this.unit = 1;      // relative size unit (a rectangle of width 10 with unit size of 5 -> 50px rectangle)
             this.offsetX = 0;   // offset from the left of any drawn content vertex with x = 10 with offsetX = 20 -> vertex drawn at 30px from left
             this.offsetY = 0;   // offset from the top ~
+			this.onrefit = () => {};
         }
+		
+		// calls the callback function now and on any canvas refit calls later
+		setOnRefit(callback) {
+			this.onrefit = callback;
+			callback();
+			return this;
+		}
 
         /**
          * Returns a Gmt.Rectangle equal tothe current canvas area
@@ -1377,7 +1492,10 @@ const Gmt = {
             this.parent = document.getElementById(parentID);
             this.parent.appendChild(this.canvas);
             let cw = this;
-            window.addEventListener('resize', () => cw.refit());
+            window.addEventListener('resize', () => {
+				cw.refit();
+				cw.onrefit();
+			});
             return this;
         }
 

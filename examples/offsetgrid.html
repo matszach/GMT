@@ -1,0 +1,43 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+
+    const D = 2;
+    var offset = () => Gmt.randFloat(-D, D);
+
+    var tab = new Gmt.Table2D(150, 70, null);    
+    tab.iter((x, y) => tab.put(x, y, new Gmt.Vertex(15 + x * 10 + offset(), 15 + y * 10 + offset())));
+
+    var fcol = Gmt.rgba(0, 0, 255, 0.2);
+    var scol = Gmt.rgba(0, 0, 255, 0.5);
+    
+    let pgs = [];
+    tab.iter((x, y) => {
+        if(x < tab.xSize - 1 && y < tab.ySize - 1) {
+            let p = new Gmt.Polygon();
+            p.push(tab.get(x, y))
+             .push(tab.get(x + 1, y))
+             .push(tab.get(x + 1, y + 1))
+             .push(tab.get(x, y + 1));
+            pgs.push(p);
+        }
+    });
+
+
+    new Gmt.Loop(1, loop => {
+        cw.fill('black');
+
+        pgs.forEach(p => {
+            cw.drawPolygon(p, fcol, scol, 1);
+        });
+
+
+    }).start();
+   
+
+</script>
