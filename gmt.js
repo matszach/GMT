@@ -149,13 +149,20 @@ const Gmt = {
             );
         },
 
-        map2d(xSize, ySize, xStep, yStep, xSeed, ySeed) {
-            xStep = xStep || 100;
-            yStep = yStep || 100;
-            xSeed = xSeed || 0;
-            ySeed = ySeed || 0;
+        map2d(options) {
+            let xSize = options.xSize || 100;
+            let ySize = options.ySize || 100;
+            let xStep = options.xStep || 100;
+            let yStep = options.yStep || 100;
+            let xSeed = options.xSeed || 0;
+            let ySeed = options.ySeed || 0;
+            let normMin = options.normMin || -1;
+            let normMax = options.normMax || 1;
             let t = new Gmt.Typed2DArray(xSize, ySize, Float32Array);
-            t.iter((x, y) => t.put(x, y, Gmt.Perlin.v2d((x + xSeed)/xStep, (y + ySeed)/yStep)));
+            t.iter((x, y) => {
+                let v = Gmt.Perlin.v2d((x + xSeed)/xStep, (y + ySeed)/yStep);
+                t.put(x, y, Gmt.normalize(v, -1, 1, normMin, normMax));
+            });
             return t;
         }
     
@@ -173,6 +180,19 @@ const Gmt = {
      */
     clamp(num, min, max) {
         return num <= min ? min : num >= max ? max : num;
+    },
+
+    /**
+     * 
+     * @param {*} value 
+     * @param {*} baseMin 
+     * @param {*} baseMax 
+     * @param {*} targetMin 
+     * @param {*} targetMax 
+     */
+    normalize(value, baseMin, baseMax, targetMin, targetMax) {
+        let level = (value - baseMin)/(baseMax - baseMin);
+        return targetMin + (targetMax - targetMin) * level;
     },
 
     /**

@@ -1,5 +1,4 @@
 <script src='./../gmt.js'></script>
-<script src='./../perlin.js'></script>
 <style>*{margin: 0;}</style>
 
 <div id='myDiv' style="height: 100%; width: 100%;"></div>
@@ -7,17 +6,52 @@
 <script>
     
     Gmt.Perlin.init();
-    let cw = new Gmt.CanvasWrapper('myDiv');
+    const cw = new Gmt.CanvasWrapper('myDiv').setOffset(20, 20);
 
-    new Gmt.Loop(60, loop => {
-        let f = loop.getFrame();
-        let t = Gmt.Perlin.map2d(300, 200, 30, 30, f, f/2);
+    const U = 3;
+    const COLORS = {
+        MOUNTAIN_TOP: Gmt.rgb(200, 200, 200),
+        MOUNTAIN: Gmt.rgb(50, 50, 50),
+        GRASS: Gmt.rgb(0, 150, 0),
+        SAND: Gmt.rgb(150, 150, 0),
+        WATER_SHALLOW: Gmt.rgb(0, 0, 150),
+        WATER_DEEP: Gmt.rgb(0, 0, 50),
+    };
+
+    let t = Gmt.Perlin.map2d({
+        xSize: 300,
+        ySize: 200,
+        xStep: 50,
+        yStep: 50,
+        xSeed: Gmt.randFloat(-10000, 10000),
+        ySeed: Gmt.randFloat(-10000, 10000),
+        normMin: 0,
+        normMax: 100,
+    });
+
+    function getColor(v) {
+        if(v > 70) {
+            return COLORS.MOUNTAIN_TOP;
+        } else if(v > 60) {
+            return COLORS.MOUNTAIN;
+        } else if(v > 50) {
+            return COLORS.GRASS;
+        } else if(v > 45) {
+            return COLORS.SAND;
+        } else if(v > 30) {
+            return COLORS.WATER_SHALLOW;
+        } else {
+            return COLORS.WATER_DEEP;
+        }
+    }
+
+    cw.setOnRefit(() => {
         cw.fill('black');
         t.iter((x, y, v) => {
-            let r = new Gmt.Rectangle(x * 3, y * 3, 3, 3);
-            let col = Gmt.rgb(f % 255, 0, v * 100 + 50);
+            let r = new Gmt.Rectangle(x * U, y * U, U, U);
+            let col = getColor(v);
             cw.fillRect(r, col);
         });
-    }).start();
+    });
 
 </script>
