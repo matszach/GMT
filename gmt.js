@@ -2120,3 +2120,8 @@ const Gmt = {
         }
     },
 }
+
+// node module export
+if(module) {
+    module.exports = Gmt;
+}
