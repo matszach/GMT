@@ -1,0 +1,57 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+
+<!-- GENERATES NOISE BY OVERLAPPING SIN/TAN MAPS -->
+<script>
+
+    var T_HEIGHT = 400;
+    var T_WIDTH = 600;
+    var NOF_TABLES = 50;
+    var MIN_MOD = 10;
+    var MAX_MOD = 30;
+    var MAX_COLOR = 255;
+    var MODE = 'sin';
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+
+    var tables = [];
+
+    Gmt.iter1D(NOF_TABLES, i => {
+        var t = new Gmt.Table2D(T_WIDTH, T_HEIGHT, 0);
+        var xMod = Gmt.randFloat(MIN_MOD, MAX_MOD) * Gmt.randSign();
+        var yMod = Gmt.randFloat(MIN_MOD, MAX_MOD) * Gmt.randSign();
+        t.iter((x, y) => {
+            let v;
+            switch(MODE) {
+                case 'sin': v = Math.sin(x/xMod + y/yMod); break;
+                case 'cos': v = Math.cos(x/xMod + y/yMod); break;
+                case 'tan': v = Math.tan(x/xMod + y/yMod); break;
+                default: v = Math.sin(x/xMod + y/yMod); break;
+            }
+            t.put(x, y, v);
+        });
+        tables.push(t);
+    });
+
+    var mainTable = new Gmt.Table2D(T_WIDTH, T_HEIGHT, 0);
+    mainTable.iter((x, y) => {
+        let v = 0;
+        tables.forEach(t => {
+            v += t.get(x, y);
+        });
+        v /= NOF_TABLES;
+        v = (v + 1)/2 * MAX_COLOR;
+        mainTable.put(x, y, v);
+    });
+    
+    new Gmt.Loop(30, loop => {
+        cw.fill('black');
+        mainTable.iter((x, y, v) => {
+            cw.fillRect(new Gmt.Rectangle(x * 2, y * 2, 2, 2), cw.rgb(v, v, v));
+        });
+    }).start();
+    
+</script>

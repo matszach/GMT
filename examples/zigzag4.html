@@ -1,0 +1,58 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(1);
+    var tab = new Gmt.Table2D(100, 100, -1);
+
+    function fill(x, y, parentValue) {
+        if(!tab.isInRange(x, y)) {
+            return;
+        }
+        let v = tab.get(x, y);
+        if(v !== -1) {
+            return;
+        }
+        let newValue = parentValue + Gmt.randFloat(-2, 2);
+        tab.put(x, y, newValue);
+        switch(Gmt.choice(['up', 'down', 'left', 'right'])) {
+            case 'up':
+                fill(x, y - 1, newValue);
+                fill(x, y + 1, newValue);
+                fill(x - 1, y, newValue);
+                fill(x + 1, y, newValue); 
+                break;
+            case 'down':
+                fill(x, y + 1, newValue);
+                fill(x - 1, y, newValue);
+                fill(x + 1, y, newValue); 
+                fill(x, y - 1, newValue);
+                break;
+            case 'left':
+                fill(x - 1, y, newValue);
+                fill(x + 1, y, newValue); 
+                fill(x, y - 1, newValue);
+                fill(x, y + 1, newValue);
+                break;
+            case 'right':
+                fill(x + 1, y, newValue); 
+                fill(x, y - 1, newValue);
+                fill(x, y + 1, newValue);
+                fill(x - 1, y, newValue);
+                break;
+        }         
+    } 
+
+    fill(50, 50, 100);
+    
+    new Gmt.Loop(30, loop => {
+        cw.fill('black');
+        tab.iter((x, y, v) => {
+            cw.fillRect(new Gmt.Rectangle(x * 5, y * 5, 5, 5), cw.rgb(0, v, 0));
+        });
+    }).start();
+    
+</script>

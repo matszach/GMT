@@ -1,0 +1,36 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(1);
+    var tab = new Gmt.Table2D(500, 400, -1);
+
+    tab.iter((x, y) => {
+        let nofValid = 0;
+        let sum = 0;
+        if(tab.isInRange(x - 1, y) && tab.get(x - 1, y) !== -1) {
+            nofValid += 1;
+            sum += tab.get(x - 1, y);
+        }
+        if(tab.isInRange(x, y - 1) && tab.get(x, y - 1) !== -1) {
+            nofValid += 1;
+            sum += tab.get(x, y - 1);
+        }
+        if(nofValid === 0) {
+            tab.put(x, y, 100);
+        } else {
+            tab.put(x, y, sum/nofValid + Gmt.randInt(-5, 5));
+        }
+    });
+    
+    new Gmt.Loop(30, loop => {
+        cw.fill('black');
+        tab.iter((x, y, v) => {
+            cw.fillRect(new Gmt.Rectangle(x * 2, y * 2, 2, 2), cw.rgb(255 * x / tab.xSize, v, 255 * y / tab.ySize));
+        });
+    }).start();
+    
+</script>

@@ -1,0 +1,28 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv').setUnitSize(5);
+    var col = cw.rgb(0, 0, 200);
+    
+    var arr = [];
+    arr.push(50);
+    
+    new Gmt.Loop(30, loop => {
+        cw.fill('black');
+        let firstIndex = arr.length - 200;
+        if(firstIndex < 0) {
+            firstIndex = 0;
+        }
+        for(let i = firstIndex; i < arr.length; i++) {
+            let v = new Gmt.Vertex(i - firstIndex, arr[i]);
+            cw.fillCircle(v.toCircle(1), col);
+        }
+        let nextValue = arr[arr.length - 1] + Gmt.randInt(-1, 1);
+        arr.push(nextValue);
+    }).start();
+    
+</script>

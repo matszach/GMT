@@ -99,7 +99,7 @@ const Gmt = {
                 return this.x * x + this.y * y;
             }
 
-            dot3 = function(x, y, z) {
+            dot3(x, y, z) {
                 return this.x * x + this.y * y + this.z * z;
             }
         },
@@ -2119,9 +2119,4 @@ const Gmt = {
             return rolls;
         }
     },
-}
-
-// node module export
-if(module) {
-    module.exports = Gmt;
 }
