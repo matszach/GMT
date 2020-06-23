@@ -37,7 +37,7 @@
     function pointFromPoint(oldPoint, newPower) {
         let angle;
         if(oldPoint.angle != null) {
-            angle = oldPoint.angle + Gmt.randFloat(0, 1) * Gmt.PI * Gmt.randSign();
+            angle = oldPoint.angle + Gmt.randFloat(0, 0.5) * Gmt.PI * Gmt.randSign();
         } else {
             angle = Gmt.randFloat(0, 2) * Gmt.PI;
         }
