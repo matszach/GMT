@@ -758,7 +758,7 @@ const Gmt = {
         }
 
         equals(otherVertex) {
-            return Gmt.Intersection(this, otherVertex);
+            return this.x == otherVertex.x && this.y == otherVertex.y;
         }
 
         distanceTo(otherVertex) {
