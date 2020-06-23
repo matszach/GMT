@@ -1,0 +1,104 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    function getNofSplits() {
+        var c = Gmt.random();
+        if(c < 0.01) {
+            return 5;
+        } else if (c < 0.1) {
+            return 4;
+        } else if (c < 0.25) {
+            return 3;
+        } else {
+            return 2;
+        }
+    }
+
+    function newPoint(x, y, power, angle) {
+        return {
+            vrt: new Gmt.Vertex(x, y),
+            power: power,
+            angle: angle,
+            marked: false
+        };
+    }
+
+    function newVector(p1, p2, power) {
+        return {
+            seg: new Gmt.Segment(p1.vrt.x, p1.vrt.y, p2.vrt.x, p2.vrt.y),
+            power: power
+        };
+    }
+
+    function pointFromPoint(oldPoint, newPower) {
+        let angle;
+        if(oldPoint.angle != null) {
+            angle = oldPoint.angle + Gmt.randFloat(0, 0.1) * Gmt.PI * Gmt.randSign();
+        } else {
+            angle = Gmt.randFloat(0, 2) * Gmt.PI;
+        }
+        let length = Gmt.randFloat(20, 50);
+        let crt = Gmt.polarToCartesian(length, angle);
+        return newPoint(oldPoint.vrt.x + crt.x, oldPoint.vrt.y + crt.y, newPower, angle);
+    }
+
+    function spreadPoint(oPoint) {
+        oPoint.marked = true;
+        if(oPoint.power < 0) return;
+        let nofPoints = getNofSplits();
+        let newPower = oPoint.power - nofPoints;
+        Gmt.iter1D(nofPoints, () => {
+            let nPoint = pointFromPoint(oPoint, newPower);
+            let nVector = newVector(oPoint, nPoint, newPower);
+            let collides = false;
+            vectors.forEach(v => {
+                if(v.seg.start.equals(nVector.seg.start) ||
+                   v.seg.end.equals(nVector.seg.start) ||
+                   v.seg.start.equals(nVector.seg.end) ||
+                   v.seg.end.equals(nVector.seg.end)) {
+                    return;
+                }
+                if(Gmt.Collision.segments(v.seg, nVector.seg)) {
+                    collides = true;
+                }
+            });
+            if(!collides) {
+                points.push(nPoint);
+                vectors.push(nVector);
+            }
+        });
+    }
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+    var vectors = [];
+    var points = [];
+
+    for(let i = 0; i < 8; i ++) {
+        points.push(newPoint(750, 350, 30, Gmt.PI * i/4));
+    }
+
+    spreadPoint(points[0]);
+
+    while (true) {
+        let pointsToSpread = points.filter(p => p.marked == false);
+        if (pointsToSpread.length == 0) {
+            break;
+        }
+        pointsToSpread.forEach(p => spreadPoint(p));
+    }
+
+    new Gmt.Loop(30, loop => {
+        cw.fill('black');
+        vectors.forEach(v => {
+            cw.strokeSegment(v.seg, 'blue', Gmt.clamp(v.power/10, 0.2, 5));
+        });
+        // points.forEach(p => {
+        //     cw.drawCircle(p.vrt.toCircle(1), 'blue');
+        // });
+    }).start();
+    
+</script>
