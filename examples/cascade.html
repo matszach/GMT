@@ -28,7 +28,7 @@
             return;
         } else {
             table.put(e.x, e.y, e.v);
-            Gmt.iter1D(4, i=> {
+            Gmt.iter1D(3, i=> {
                 cascade.add(new Vrt(e.x + Gmt.randInt(-1, 1), e.y + Gmt.randInt(-1, 1), e.v + Gmt.randFloat(-OFFSET, OFFSET)));
             });
         }
@@ -46,7 +46,11 @@
             } else {
                 let nbfound = 0;
                 let nbval = 0;
-                let neigbours = [{x: x + 1, y: y}, {x: x - 1, y: y}, {x: x, y: y + 1}, {x: x, y: y - 1}];
+                let neigbours = 
+                    [
+                        {x: x + 1, y: y}, {x: x - 1, y: y}, {x: x, y: y + 1}, {x: x, y: y - 1},
+                        {x: x + 1, y: y + 1}, {x: x - 1, y: y - 1}, {x: x - 1, y: y + 1}, {x: x + 1, y: y - 1}
+                    ];
                 neigbours.forEach(n => {
                     if(table.isInRange(n.x, n.y)) {
                         let val = table.get(n.x, n.y);
@@ -60,13 +64,13 @@
                     let nv = nbval/nbfound;
                     let col = Gmt.rgb(Gmt.clamp(x/nv * 100, 0, 255), Gmt.clamp(y/nv * 100, 0, 255), 0)
                     cw.drawRect(new Gmt.Rectangle(x * 5, y * 5, 4, 4), col);  
-                    if(nbfound > 2) {
+                    if(nbfound > 4) {
                         table.put(x, y, nv);
                     }
                 }
             }
         }); 
-        if(loop.getFrame() % 75 == 0) {
+        if(loop.getFrame() % 120 == 0) {
             table = new Gmt.Table2D(201, 101)
             elements = [new Vrt(Gmt.randInt(1, 200), Gmt.randInt(1, 100), Gmt.randFloat(50, 150))];
             cascade = new Gmt.Cascade(elements, logic);
