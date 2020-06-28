@@ -28,7 +28,7 @@
             return;
         } else {
             table.put(e.x, e.y, e.v);
-            Gmt.iter1D(5, i=> {
+            Gmt.iter1D(12, i=> {
                 cascade.add(new Vrt(e.x + Gmt.randInt(-1, 1), e.y + Gmt.randInt(-1, 1), e.v + Gmt.randFloat(-OFFSET, OFFSET)));
             });
         }
