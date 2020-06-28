@@ -1,0 +1,55 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    class Vrt {
+        constructor(x, y, v) {
+            this.x = x;
+            this.y = y;
+            this.v = v;
+        }
+    }
+
+    const OFFSET = 5;
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+
+    var table = new Gmt.Table2D(201, 101)
+
+    var elements = [new Vrt(Gmt.randInt(1, 200), Gmt.randInt(1, 100), Gmt.randFloat(50, 150))];
+
+    var logic = (cascade, e) => {
+        if(!table.isInRange(e.x, e.y)) {
+            return;
+        } else if (!!table.get(e.x, e.y)) {
+            return;
+        } else {
+            table.put(e.x, e.y, e.v);
+            Gmt.iter1D(5, i=> {
+                cascade.add(new Vrt(e.x + Gmt.randInt(-1, 1), e.y + Gmt.randInt(-1, 1), e.v + Gmt.randFloat(-OFFSET, OFFSET)));
+            });
+        }
+    };  
+
+    var cascade = new Gmt.Cascade(elements, logic);
+
+    new Gmt.Loop(120, loop => {
+        cascade.once();
+        cw.fill('black');
+        table.iter((x, y, v) => {
+            if(!!v) {
+                cw.drawRect(new Gmt.Rectangle(x * 5, y * 5, 4, 4), Gmt.rgb(x/v * 100, y/v * 100, 0));
+            }
+        }); 
+        if(loop.getFrame() % 75 == 0) {
+            table = new Gmt.Table2D(201, 101)
+            elements = [new Vrt(Gmt.randInt(1, 200), Gmt.randInt(1, 100), Gmt.randFloat(50, 150))];
+            cascade = new Gmt.Cascade(elements, logic);
+        }
+       
+    }).start();
+    
+</script>

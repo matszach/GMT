@@ -333,6 +333,17 @@ const Gmt = {
     },
 
     /**
+     * 
+     * @param {*} array 
+     * @param {*} func 
+     */
+    fromArray(array, func) {
+        let arr = [];
+        array.forEach(i => arr.push(func(i)));
+        return arr;
+    },
+
+    /**
      * Creates a 2D array of specified size and default value
      * @param {Number} sizeX - X size of the array
      * @param {Number} sizeY - Y size of the array
@@ -2119,4 +2130,50 @@ const Gmt = {
             return rolls;
         }
     },
+
+    /** */
+    Cascade : class {
+
+        constructor(elementList, onCascade, shouldMark) {
+            this.wrappedElements = Gmt.fromArray(elementList, e => ({element: e, marked: false}));
+            this.onCascade = onCascade || (() => {});
+            this.shouldMark = shouldMark || (e => true);
+        }
+
+        cascade() {
+            while(this.once()){};
+        }
+
+        acyncCascade() {
+            setImmediate(this.cascade);
+        }
+
+        intervalCascade(time) {
+            let tm = setTimeout(cascade => {
+                if(!cascade.once()) {
+                    clearInterval(tm);
+                }
+            }, time, this);
+        }
+
+        once() {
+            this.wrappedElements = this.wrappedElements.filter(e => !e.marked);
+            if(this.wrappedElements.length == 0) {
+                return false;
+            } 
+            this.wrappedElements.forEach(e => {
+                this.onCascade(this, e.element);
+                if(this.shouldMark(e)) {
+                    e.marked = true;
+                }
+            });
+            return true;
+        }
+
+        add(e) {
+            this.wrappedElements.push({element: e, marked: false});
+        } 
+    
+    }
+
 }
