@@ -1,0 +1,136 @@
+<script src='./../gmt.js'></script>
+<style>*{margin: 0;}</style>
+
+<div id='myDiv' style="height: 100%; width: 100%;"></div>
+
+<script>
+
+    var cw = new Gmt.CanvasWrapper('myDiv');
+
+    class Cell {
+        constructor(x, y, isRoot) {
+            this.x = x;
+            this.y = y;
+            this.visited = false;
+            this.isRoot = isRoot || false;
+            this.possible = {up: false, left: false, down: false, right: false};
+            this.open = {up: false, left: false, down: false, right: false};
+            this.previousCell = null;
+        }
+    }
+
+    let cellMap = new Gmt.Table2D(40, 40, null);
+
+    cellMap.iter((x, y) => {
+        let cell = new Cell(x, y);
+        cell.possible.up = cellMap.isInRange(x, y - 1);
+        cell.possible.left = cellMap.isInRange(x - 1, y);
+        cell.possible.down = cellMap.isInRange(x, y + 1);
+        cell.possible.right = cellMap.isInRange(x + 1, y);
+        cellMap.put(x, y, cell);
+    });
+
+    function isCellMapComplete() {
+        if(cellMap.complete) {
+            return true;
+        }
+        let complete = true;
+        cellMap.iter((x, y, v) => {
+            if(v.visited) {
+                complete = false;
+            }
+        });
+        if(complete) {
+            cellMap.complete = true;
+        }
+        return complete;
+    }
+
+    let root = cellMap.get(20, 20);
+    root.isRoot = true;
+    root.visited = true;
+    let current = root;
+
+    function progressCellMap() {
+        
+        // looking for possible ways to progress
+        let possibleWays = [];
+        if(current.possible.up && !cellMap.get(current.x, current.y - 1).visited) {
+            possibleWays.push('UP');
+        }
+        if(current.possible.left && !cellMap.get(current.x - 1, current.y).visited) {
+            possibleWays.push('LEFT');
+        }
+        if(current.possible.down && !cellMap.get(current.x, current.y + 1).visited) {
+            possibleWays.push('DOWN');
+        }
+        if(current.possible.right && !cellMap.get(current.x + 1, current.y).visited) {
+            possibleWays.push('RIGHT');
+        }
+
+        // found at least one path
+        if(possibleWays.length > 0) {
+            let dir = Gmt.choice(possibleWays);
+            let nextCell;
+            if(dir == 'UP') {
+                nextCell = cellMap.get(current.x, current.y - 1);
+                current.open.up = true;
+                nextCell.open.down = true;
+            } else if(dir == 'LEFT') {
+                nextCell = cellMap.get(current.x - 1, current.y);
+                current.open.left = true;
+                nextCell.open.right = true;
+            } else if(dir == 'DOWN') {
+                nextCell = cellMap.get(current.x, current.y + 1);
+                current.open.down = true;
+                nextCell.open.up = true;
+            } else if(dir == 'RIGHT') {
+                nextCell = cellMap.get(current.x + 1, current.y);
+                current.open.right = true;
+                nextCell.open.left = true;
+            }
+            nextCell.visited = true;
+            nextCell.previousCell = current;
+            current = nextCell;
+
+        // no paths found, backtrack
+        } else {
+            current = current.previousCell;
+            if(!current) {
+                cellMap.complete = true;
+            }
+        }
+    }
+
+    function drawCellMap() {
+        cellMap.iter((x, y, cell) => {
+            if(cell.visited) {
+                cw.fillRect(new Gmt.Rectangle(x * 20, y * 20, 10, 10), 'white');
+            } 
+            if(cell.open.up) {
+                cw.fillRect(new Gmt.Rectangle(x * 20 + 1, y * 20 - 5, 8, 5), 'lightgray');
+            }
+            if(cell.open.left) {
+                cw.fillRect(new Gmt.Rectangle(x * 20 - 5, y * 20 + 1, 5, 8), 'lightgray');
+            }
+            if(cell.open.down) {
+                cw.fillRect(new Gmt.Rectangle(x * 20 + 1, y * 20 + 10, 8, 5), 'lightgray');
+            }
+            if(cell.open.right) {
+                cw.fillRect(new Gmt.Rectangle(x * 20 + 10, y * 20 + 1, 5, 8), 'lightgray');
+            }
+            if(cell == current) {
+                cw.fillRect(new Gmt.Rectangle(x * 20 - 2, y * 20 - 2, 14, 14), 'blue');
+            }
+        });
+    }
+
+    new Gmt.Loop(60, loop => {
+        if(!isCellMapComplete()) {
+           progressCellMap();
+        } 
+        cw.fill('black');
+        drawCellMap();
+    }).start();
+    
+</script>
