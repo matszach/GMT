@@ -4,7 +4,7 @@
  * Collection of tools that can be used to create games with JS and HTML5 canvas
  * @author Lukasz Kaszubowski
  * @see https://github.com/matszach
- * @version 1.1.1
+ * @version 1.1.2
  */
 const Gmt = {
 
@@ -353,7 +353,7 @@ const Gmt = {
         let arr = new Array(sizeX);
         for(let x = 0; x < sizeX; x++){
             let row = new Array(sizeY);
-            if(defaultValue != undefined){
+            if(defaultValue !== undefined){
                 for(let y = 0; y < sizeY; y++){
                     row[y] = defaultValue;
                 }
@@ -674,7 +674,7 @@ const Gmt = {
      */
     cartesianToPolar(x, y) {
         let phi; 
-        if(x == 0) {
+        if(x === 0) {
             if (y > 0) {
                 phi = Gmt.PI/2;
             } else {
@@ -713,7 +713,7 @@ const Gmt = {
 
         moveAway(otherVertex, distance) {
             let distanceToOtherVertex = this.distanceTo(otherVertex);
-            if(distanceToOtherVertex == 0) {
+            if(distanceToOtherVertex === 0) {
                 return this;
             }
             let d = distance / distanceToOtherVertex;
@@ -724,7 +724,7 @@ const Gmt = {
 
         moveTowards(otherVertex, distance) {
             let distanceToOtherVertex = this.distanceTo(otherVertex);
-            if(distanceToOtherVertex == 0) {
+            if(distanceToOtherVertex === 0) {
                 return this;
             }
             let d = distance / distanceToOtherVertex;
@@ -769,7 +769,7 @@ const Gmt = {
         }
 
         equals(otherVertex) {
-            return this.x == otherVertex.x && this.y == otherVertex.y;
+            return this.x === otherVertex.x && this.y === otherVertex.y;
         }
 
         distanceTo(otherVertex) {
@@ -1082,8 +1082,8 @@ const Gmt = {
      * @param  {...Number} coordinates 
      */
     polyLineFromList(...coordinates) {
-        if(coordinates.length % 2 != 0) {
-            throw "Coordinate list of odd length.";
+        if(coordinates.length % 2 !== 0) {
+            throw new Error("Coordinate list of odd length.");
         }
         let pl = new Gmt.PolyLine();
         for(let i = 0; i < coordinates.length;) {
@@ -1097,8 +1097,8 @@ const Gmt = {
      * @param  {...Number} coordinates 
      */
     polygonFromList(...coordinates) {
-        if(coordinates.length % 2 != 0) {
-            throw "Coordinate list of odd length.";
+        if(coordinates.length % 2 !== 0) {
+            throw new Error("Coordinate list of odd length.");
         }
         let pg = new Gmt.Polygon();
         for(let i = 0; i < coordinates.length;) {
@@ -1164,7 +1164,7 @@ const Gmt = {
 
         // true if the position sof the verices are equal
         vertices(v1, v2) {
-            return v1.x == v2.x && v1.y == v2.y;
+            return v1.x === v2.x && v1.y === v2.y;
         },
 
         // true if the distance between the vertex and the circles center 
@@ -1197,7 +1197,7 @@ const Gmt = {
             let tNom = (s1.start.x - s2.start.x) * (s2.start.y - s2.end.y) - (s1.start.y - s2.start.y) * (s2.start.x - s2.end.x);
             let uNom = - ((s1.start.x - s1.end.x) * (s1.start.y - s2.start.y) - (s1.start.y - s1.end.y) * (s1.start.x - s2.start.x));
             let tDen = (s1.start.x - s1.end.x) * (s2.start.y - s2.end.y) - (s1.start.y - s1.end.y) * (s2.start.x - s2.end.x);
-            if(tDen == 0) { // -> lines are parallel
+            if(tDen === 0) { // -> lines are parallel
                 return {
                     parallel: true,
                     vertex: null,
@@ -1361,7 +1361,7 @@ const Gmt = {
         constructor(options) {
 
             if(!options.lookup) {
-                throw 'No \"lookup\" option given.';
+                throw new Error('No "lookup" option given.');
             }
 
             this.interval = null;
@@ -1945,7 +1945,7 @@ const Gmt = {
             // event listerens target
             let target = targetId ? document.getElementById(targetId) : document;
             if(!target) {
-                throw `Failure locating target element of ID \"${targetId}\".`;
+                throw new Error(`Failure locating target element of ID "${targetId}".`);
             }
             
             // mouse listeners
@@ -1961,6 +1961,7 @@ const Gmt = {
                     case 0: this._mouse.left = true; break;
                     case 1: this._mouse.middle = true; break;
                     case 2: this._mouse.right = true; break;
+					default: break;
                 }
             };
             target.onmouseup = (e) => {
@@ -1968,6 +1969,7 @@ const Gmt = {
                     case 0: this._mouse.left = false; break;
                     case 1: this._mouse.middle = false; break;
                     case 2: this._mouse.right = false; break;
+					default: break;
                 }
             };
 
@@ -2168,7 +2170,7 @@ const Gmt = {
 
         once() {
             this.wrappedElements = this.wrappedElements.filter(e => !e.marked);
-            if(this.wrappedElements.length == 0) {
+            if(this.wrappedElements.length === 0) {
                 return false;
             } 
             this.wrappedElements.forEach(e => {
